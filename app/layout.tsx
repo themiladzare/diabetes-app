@@ -43,7 +43,7 @@ export default function RootLayout({
             />
           </div>
           {/* <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56"></div> */}
-          <div className="mx-auto max-w-2xl py-4 sm:py-8 lg:py-16">
+          <div className="mx-auto max-w-4xl py-4 sm:py-8 lg:py-16">
             {children}
           </div>
           <div

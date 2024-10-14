@@ -1,41 +1,110 @@
-// components/Step1.tsx
-import React, { useState } from 'react';
-import { Box, Button, TextField, FormControl, InputLabel, Select, MenuItem, FormHelperText } from '@mui/material';
-import { useForm, Controller } from 'react-hook-form';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import ResultModal from './ResultModal';
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  FormGroup,
+  Select,
+  MenuItem,
+  FormHelperText,
+  TextField,
+} from "@mui/material";
+import { useForm, Controller } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import axios from "axios";
+import ResultModal from "./ResultModal";
+import toast from "react-hot-toast";
 
 const schema = yup.object().shape({
-  weight: yup.number().required('وزن الزامی است').positive('وزن باید مثبت باشد').integer('وزن باید عدد صحیح باشد'),
-  height: yup.number().required('قد الزامی است').positive('قد باید مثبت باشد').integer('قد باید عدد صحیح باشد'),
-  ageRange: yup.string().required('محدوده سنی الزامی است'),
-  intenseExercise: yup.string().required('فعالیت بدنی شدید الزامی است'),
-  moderateExercise: yup.string().required('فعالیت بدنی متوسط الزامی است'),
-  midnightBathroom: yup.string().required('بیدار شدن نیمه شب الزامی است'),
-  sodaConsumption: yup.string().required('مصرف نوشیدنی گازدار الزامی است'),
-  sugarDrink: yup.string().required('مصرف نوشیدنی‌های شیرین الزامی است'),
-  fastFood: yup.string().required('مصرف فست‌فود الزامی است'),
-  friedFood: yup.string().required('مصرف سیب‌زمینی سرخ‌کرده و فست‌فود الزامی است'),
-  sugarCubes: yup.string().required('مصرف قند الزامی است'),
-  cakeConsumption: yup.string().required('مصرف کیک و کلوچه الزامی است'),
-  snackConsumption: yup.string().required('مصرف میان‌وعده‌های شور الزامی است'),
-  smoking: yup.string().required('وضعیت مصرف سیگار الزامی است'),
-  addictionTreatment: yup.string().required('وضعیت درمان اعتیاد الزامی است'),
-  gender: yup.string().required('جنسیت الزامی است'),
+  weight: yup
+    .number()
+    .required("وزن الزامی است")
+    .positive("وزن باید مثبت باشد")
+    .integer("وزن باید عدد صحیح باشد"),
+  height: yup
+    .number()
+    .required("قد الزامی است")
+    .positive("قد باید مثبت باشد")
+    .integer("قد باید عدد صحیح باشد"),
+  ageRange: yup.string(),
+  intenseExercise: yup.string(),
+  moderateExercise: yup.string(),
+  midnightBathroom: yup.string(),
+  sodaConsumption: yup.string(),
+  sugarDrink: yup.string(),
+  unknow: yup.string(),
+  fastFood: yup.string(),
+  friedFood: yup.string(),
+  sugarCubes: yup.string(),
+  cakeConsumption: yup.string(),
+  snackConsumption: yup.string(),
+  smoking: yup.string(),
+  addictionTreatment: yup.string(),
+  gender: yup.string(),
 });
 
 const Step1 = ({ nextStep }: { nextStep: () => void }) => {
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     resolver: yupResolver(schema),
   });
   const [openModal, setOpenModal] = useState(false);
-  const [resultMessage, setResultMessage] = useState('');
+  const [resultMessage, setResultMessage] = useState("");
 
   const onSubmit = async (data: any) => {
-    console.log(data);
-    setResultMessage('داده‌ها با موفقیت ارسال شدند!');
-    setOpenModal(true);
+    const dataPost = {
+      Vazn: data?.weight,
+      Ghad: data?.height,
+      test1: data?.ageRange,
+      test12: data?.intenseExercise,
+      test14: data?.moderateExercise,
+      test24: data?.midnightBathroom,
+      test198: data?.sodaConsumption,
+      test199: data?.sugarDrink,
+      test201: data?.unknow,
+      test203: data?.fastFood,
+      test204: data?.friedFood,
+      test215: data?.sugarCubes,
+      test219: data?.cakeConsumption,
+      test220: data?.snackConsumption,
+      tst253: data?.smoking,
+      tst262: data?.addictionTreatment,
+      tst2: data?.gender,
+    };
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/predict/",
+        dataPost
+      );
+
+      const result = response.data;
+
+      let resultMessage;
+      if (result.prediction === 1) {
+        resultMessage = `دیابت دارید و احتمال دیابت داشتن شما ${
+          result.confidence_class_0 * 100
+        }% است.`;
+      } else {
+        resultMessage = `شما دیابت ندارید و احتمال نداشتن دیابت ${
+          result.confidence_class_1 * 100
+        }% است.`;
+      }
+
+      setResultMessage(resultMessage);
+
+      setOpenModal(true);
+    } catch (error) {
+      // console.error("Error submitting data:", error);
+      setResultMessage("خطایی در ارسال داده‌ها رخ داد.");
+      toast.error("خطایی در ارسال داده‌ها رخ داد.");
+      setOpenModal(true);
+    }
   };
 
   const handleCloseModal = () => {
@@ -46,319 +115,450 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* فیلدهای ورودی برای قد و وزن */}
-        <Box mb={2}>
-          <Controller
-            name="weight"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField {...field} label="وزن (کیلوگرم)" variant="outlined" fullWidth error={!!errors.weight} helperText={errors.weight?.message} />
-            )}
-          />
-        </Box>
-        <Box mb={2}>
-          <Controller
-            name="height"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField {...field} label="قد (سانتی‌متر)" variant="outlined" fullWidth error={!!errors.height} helperText={errors.height?.message} />
-            )}
-          />
+        <Box mb={3}>
+          <FormControl component="fieldset" error={!!errors.weight} fullWidth>
+            <FormLabel component="legend">وزن شما چقدر است؟</FormLabel>
+            <FormGroup>
+              <Controller
+                name="weight"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField {...field} variant="outlined" fullWidth />
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.weight?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* محدوده سنی */}
-        <Box mb={2}>
-          <Controller
-            name="ageRange"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.ageRange}>
-                <InputLabel>محدوده سنی</InputLabel>
-                <Select {...field} label="محدوده سنی">
-                  <MenuItem value="20-29">20-29</MenuItem>
-                  <MenuItem value="30-39">30-39</MenuItem>
-                  <MenuItem value="40-49">40-49</MenuItem>
-                  <MenuItem value="50-59">50-59</MenuItem>
-                  <MenuItem value="60-69">60-69</MenuItem>
-                </Select>
-                <FormHelperText>{errors.ageRange?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl component="fieldset" error={!!errors.height} fullWidth>
+            <FormLabel component="legend">قد شما چقدر است؟</FormLabel>
+            <FormGroup>
+              <Controller
+                name="height"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField {...field} variant="outlined" fullWidth />
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.height?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* فعالیت بدنی شدید */}
-        <Box mb={2}>
-          <Controller
-            name="intenseExercise"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.intenseExercise}>
-                <InputLabel>فعالیت بدنی شدید</InputLabel>
-                <Select {...field} label="فعالیت بدنی شدید">
-                  <MenuItem value="هرگز">هرگز</MenuItem>
-                  <MenuItem value="1 بار در هفته">1 بار در هفته</MenuItem>
-                  <MenuItem value="2 بار در هفته">2 بار در هفته</MenuItem>
-                  <MenuItem value="3-4 بار در هفته">3-4 بار در هفته</MenuItem>
-                  <MenuItem value="5 بار یا بیشتر">5 بار یا بیشتر</MenuItem>
-                </Select>
-                <FormHelperText>{errors.intenseExercise?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl component="fieldset" error={!!errors.ageRange} fullWidth>
+            <FormLabel component="legend">محدوده سنی شما چیست؟</FormLabel>
+            <FormGroup>
+              <Controller
+                name="ageRange"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">20-29</MenuItem>
+                    <MenuItem value="2">30-39</MenuItem>
+                    <MenuItem value="3">40-49</MenuItem>
+                    <MenuItem value="4">50-59</MenuItem>
+                    <MenuItem value="5">60-69</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.ageRange?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* فعالیت بدنی متوسط */}
-        <Box mb={2}>
-          <Controller
-            name="moderateExercise"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.moderateExercise}>
-                <InputLabel>فعالیت بدنی متوسط</InputLabel>
-                <Select {...field} label="فعالیت بدنی متوسط">
-                  <MenuItem value="هرگز">هرگز</MenuItem>
-                  <MenuItem value="1 بار در هفته">1 بار در هفته</MenuItem>
-                  <MenuItem value="2 بار در هفته">2 بار در هفته</MenuItem>
-                  <MenuItem value="3-4 بار در هفته">3-4 بار در هفته</MenuItem>
-                  <MenuItem value="5 بار یا بیشتر">5 بار یا بیشتر</MenuItem>
-                </Select>
-                <FormHelperText>{errors.moderateExercise?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl
+            component="fieldset"
+            error={!!errors.intenseExercise}
+            fullWidth
+          >
+            <FormLabel component="legend">
+              به طور متوسط چند بار در هفته فعالیت بدنی شدید( که در آن سرعت ضربان
+              قلبتان بالا رفته یا عرق کردید) مثل دویدن یا کار بدنی سنگین، شرکت
+              کرده‌اید؟{" "}
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="intenseExercise"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">هرگز</MenuItem>
+                    <MenuItem value="2"> یک بار در هفته</MenuItem>
+                    <MenuItem value="3"> دو بار در هفته</MenuItem>
+                    <MenuItem value="4">سه یا چهار بار در هفته</MenuItem>
+                    <MenuItem value="5"> پنج بار یا بیشتر در هفته</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.intenseExercise?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* بیدار شدن نیمه شب */}
-        <Box mb={2}>
-          <Controller
-            name="midnightBathroom"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.midnightBathroom}>
-                <InputLabel>بیدار شدن برای دستشویی در نیمه شب</InputLabel>
-                <Select {...field} label="بیدار شدن برای دستشویی در نیمه شب">
-                  <MenuItem value="هرگز">هرگز</MenuItem>
-                  <MenuItem value="گاهی">گاهی</MenuItem>
-                  <MenuItem value="معمولاً">معمولاً</MenuItem>
-                  <MenuItem value="همیشه">همیشه</MenuItem>
-                </Select>
-                <FormHelperText>{errors.midnightBathroom?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl
+            component="fieldset"
+            error={!!errors.moderateExercise}
+            fullWidth
+          >
+            <FormLabel component="legend">
+              به طور متوسط چند بار در هفته فعالیت بدنی متوسط ( که در آن خسته
+              نشدید یا به مقدار کم عرق کردید) مثل تند راه رفتن یا کار متوسط شرکت
+              می‌کنید؟{" "}
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="moderateExercise"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">هرگز</MenuItem>
+                    <MenuItem value="2"> یک بار در هفته</MenuItem>
+                    <MenuItem value="3"> دو بار در هفته</MenuItem>
+                    <MenuItem value="4">سه یا چهار بار در هفته</MenuItem>
+                    <MenuItem value="5"> پنج بار یا بیشتر در هفته</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.moderateExercise?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* سایر فیلدهای چند گزینه‌ای */}
-        <Box mb={2}>
-          <Controller
-            name="sodaConsumption"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.sodaConsumption}>
-                <InputLabel>نوشیدنی گازدار</InputLabel>
-                <Select {...field} label="نوشیدنی گازدار">
-                  <MenuItem value="هرگز">هرگز</MenuItem>
-                  <MenuItem value="گاهی">گاهی</MenuItem>
-                  <MenuItem value="معمولاً">معمولاً</MenuItem>
-                  <MenuItem value="همیشه">همیشه</MenuItem>
-                </Select>
-                <FormHelperText>{errors.sodaConsumption?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl
+            component="fieldset"
+            error={!!errors.midnightBathroom}
+            fullWidth
+          >
+            <FormLabel component="legend">
+              در ماه گذشته چندبار نیمه شب برای دستشویی رفتن بیدار شدید؟{" "}
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="midnightBathroom"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">صلا تجربه نکردم</MenuItem>
+                    <MenuItem value="2"> کمتر از هفته‌ای یکبار</MenuItem>
+                    <MenuItem value="3">یک یا دو بار در هفته</MenuItem>
+                    <MenuItem value="4">سه بار یا بیشتر در هفته</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.midnightBathroom?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* مصرف نوشیدنی های شیرین شده با شکر */}
-        <Box mb={2}>
-          <Controller
-            name="sugarDrink"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.sugarDrink}>
-                <InputLabel>نوشیدنی‌های شیرین شده با شکر</InputLabel>
-                <Select {...field} label="نوشیدنی‌های شیرین شده با شکر">
-                  <MenuItem value="هرگز">هرگز</MenuItem>
-                  <MenuItem value="گاهی">گاهی</MenuItem>
-                  <MenuItem value="معمولاً">معمولاً</MenuItem>
-                  <MenuItem value="همیشه">همیشه</MenuItem>
-                </Select>
-                <FormHelperText>{errors.sugarDrink?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl
+            component="fieldset"
+            error={!!errors.sodaConsumption}
+            fullWidth
+          >
+            <FormLabel component="legend">
+              هفته‌ای چند بار نوشیدنی گازدار می‌نوشید؟{" "}
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="sodaConsumption"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">اصلا</MenuItem>
+                    <MenuItem value="2">کمتر از هفته‌ای یکبار</MenuItem>
+                    <MenuItem value="3">1-2 بار</MenuItem>
+                    <MenuItem value="4">3-4 بار</MenuItem>
+                    <MenuItem value="5"> 5 بار و بیشتر</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.sodaConsumption?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* مصرف فست فود */}
-        <Box mb={2}>
-          <Controller
-            name="fastFood"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.fastFood}>
-                <InputLabel>مصرف فست‌فود</InputLabel>
-                <Select {...field} label="مصرف فست‌فود">
-                  <MenuItem value="هرگز">هرگز</MenuItem>
-                  <MenuItem value="گاهی">گاهی</MenuItem>
-                  <MenuItem value="معمولاً">معمولاً</MenuItem>
-                  <MenuItem value="همیشه">همیشه</MenuItem>
-                </Select>
-                <FormHelperText>{errors.fastFood?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl
+            component="fieldset"
+            error={!!errors.sugarDrink}
+            fullWidth
+          >
+            <FormLabel component="legend">
+              در هفته چه میزان از نوشیدنی‌های شیرین شده با شکر نظیر شربت‌های
+              خانگی و بسته بندی و آب میوه‌های بسته بندی استفاده می‌کنید؟{" "}
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="sugarDrink"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">اصلا</MenuItem>
+                    <MenuItem value="2">کمتر از هفته‌ای یکبار</MenuItem>
+                    <MenuItem value="3">یکبار</MenuItem>
+                    <MenuItem value="4">3-2 بار</MenuItem>
+                    <MenuItem value="5"> 4 بار و بیشتر</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.sugarDrink?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* سایر فیلدها */}
-        <Box mb={2}>
-          <Controller
-            name="friedFood"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.friedFood}>
-                <InputLabel>سیب‌زمینی سرخ‌کرده و فست‌فودها</InputLabel>
-                <Select {...field} label="سیب‌زمینی سرخ‌کرده و فست‌فودها">
-                  <MenuItem value="هرگز">هرگز</MenuItem>
-                  <MenuItem value="گاهی">گاهی</MenuItem>
-                  <MenuItem value="معمولاً">معمولاً</MenuItem>
-                  <MenuItem value="همیشه">همیشه</MenuItem>
-                </Select>
-                <FormHelperText>{errors.friedFood?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl component="fieldset" error={!!errors.unknow} fullWidth>
+            <FormLabel component="legend">نامشخص</FormLabel>
+            <FormGroup>
+              <Controller
+                name="unknow"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">تبلیغات</MenuItem>
+                    <MenuItem value="2">به عنوان یک سرگرمی</MenuItem>
+                    <MenuItem value="3">
+                      امکان مصرف ان با خانواده و دوستان
+                    </MenuItem>
+                    <MenuItem value="4">سایر موارد</MenuItem>
+                    <MenuItem value="5">اصلا استفاده نمیکنم</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.unknow?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* قند */}
-        <Box mb={2}>
-          <Controller
-            name="sugarCubes"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.sugarCubes}>
-                <InputLabel>مصرف قند</InputLabel>
-                <Select {...field} label="مصرف قند">
-                  <MenuItem value="هرگز">هرگز</MenuItem>
-                  <MenuItem value="گاهی">گاهی</MenuItem>
-                  <MenuItem value="معمولاً">معمولاً</MenuItem>
-                  <MenuItem value="همیشه">همیشه</MenuItem>
-                </Select>
-                <FormHelperText>{errors.sugarCubes?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl component="fieldset" error={!!errors.fastFood} fullWidth>
+            <FormLabel component="legend">
+              همبرگر، سوسیس، کالباس، پیتزا:
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="fastFood"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">روزی یکبار</MenuItem>
+                    <MenuItem value="2">هفته‌ای 3-1 بار</MenuItem>
+                    <MenuItem value="3"> ماهی 3-1 بار</MenuItem>
+                    <MenuItem value="4"> سالی 10-5 بار</MenuItem>
+                    <MenuItem value="5"> هرگز</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.fastFood?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* کیک و کلوچه */}
-        <Box mb={2}>
-          <Controller
-            name="cakeConsumption"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.cakeConsumption}>
-                <InputLabel>کیک و کلوچه و بیسکوئیت</InputLabel>
-                <Select {...field} label="کیک و کلوچه و بیسکوئیت">
-                  <MenuItem value="هرگز">هرگز</MenuItem>
-                  <MenuItem value="گاهی">گاهی</MenuItem>
-                  <MenuItem value="معمولاً">معمولاً</MenuItem>
-                  <MenuItem value="همیشه">همیشه</MenuItem>
-                </Select>
-                <FormHelperText>{errors.cakeConsumption?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl
+            component="fieldset"
+            error={!!errors.friedFood}
+            fullWidth
+          >
+            <FormLabel component="legend">
+              سیب زمینی سرخ کرده، سمبوسه، فلافل، ناگت:{" "}
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="friedFood"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">روزی یکبار</MenuItem>
+                    <MenuItem value="2">هفته‌ای 3-1 بار</MenuItem>
+                    <MenuItem value="3"> ماهی 3-1 بار</MenuItem>
+                    <MenuItem value="4"> سالی 10-5 بار</MenuItem>
+                    <MenuItem value="5"> هرگز</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.friedFood?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* میان وعده‌های شور */}
-        <Box mb={2}>
-          <Controller
-            name="snackConsumption"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.snackConsumption}>
-                <InputLabel>مصرف میان‌وعده‌های شور</InputLabel>
-                <Select {...field} label="مصرف میان‌وعده‌های شور">
-                  <MenuItem value="هرگز">هرگز</MenuItem>
-                  <MenuItem value="گاهی">گاهی</MenuItem>
-                  <MenuItem value="معمولاً">معمولاً</MenuItem>
-                  <MenuItem value="همیشه">همیشه</MenuItem>
-                </Select>
-                <FormHelperText>{errors.snackConsumption?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl
+            component="fieldset"
+            error={!!errors.sugarCubes}
+            fullWidth
+          >
+            <FormLabel component="legend">
+              به طور متوسط هر روز جند حبه قند در اندازه متوسط مصرف می‌کنید؟
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="sugarCubes"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">اصلا</MenuItem>
+                    <MenuItem value="2">1-2 بار</MenuItem>
+                    <MenuItem value="3">3-4 بار</MenuItem>
+                    <MenuItem value="4">5-8 بار</MenuItem>
+                    <MenuItem value="5">9 بار و بیشتر</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.sugarCubes?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* مصرف سیگار */}
-        <Box mb={2}>
-          <Controller
-            name="smoking"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.smoking}>
-                <InputLabel>مصرف سیگار</InputLabel>
-                <Select {...field} label="مصرف سیگار">
-                  <MenuItem value="هرگز">هرگز</MenuItem>
-                  <MenuItem value="گاهی">گاهی</MenuItem>
-                  <MenuItem value="معمولاً">معمولاً</MenuItem>
-                  <MenuItem value="همیشه">همیشه</MenuItem>
-                </Select>
-                <FormHelperText>{errors.smoking?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl
+            component="fieldset"
+            error={!!errors.cakeConsumption}
+            fullWidth
+          >
+            <FormLabel component="legend">
+              در هفته بطور متوسط چند بار کیک، کلوچه و بیسکوئیت استفاده می‌کنید؟{" "}
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="cakeConsumption"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">اصلا</MenuItem>
+                    <MenuItem value="2"> کمتر از هفته‌ای یکبار</MenuItem>
+                    <MenuItem value="3">1-2 بار</MenuItem>
+                    <MenuItem value="4"> 3-4 بار</MenuItem>
+                    <MenuItem value="5"> 5 بار و بیشتر</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.cakeConsumption?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* سابقه درمان اعتیاد */}
-        <Box mb={2}>
-          <Controller
-            name="addictionTreatment"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.addictionTreatment}>
-                <InputLabel>سابقه درمان اعتیاد</InputLabel>
-                <Select {...field} label="سابقه درمان اعتیاد">
-                  <MenuItem value="بله">بله</MenuItem>
-                  <MenuItem value="خیر">خیر</MenuItem>
-                </Select>
-                <FormHelperText>{errors.addictionTreatment?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl
+            component="fieldset"
+            error={!!errors.snackConsumption}
+            fullWidth
+          >
+            <FormLabel component="legend">
+              در هفته بطور متوسط چندبار از میان وعده‌هایی مثل چیپس، پفک و کرانچی
+              استفاده می‌کنید؟{" "}
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="snackConsumption"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">اصلا</MenuItem>
+                    <MenuItem value="2">کمتر از هفته‌ای یکبار</MenuItem>
+                    <MenuItem value="3"> 1-2 بار</MenuItem>
+                    <MenuItem value="4"> 3-4 بار 3-4 بار</MenuItem>
+                    <MenuItem value="5"> 3-4 بار</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.snackConsumption?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
-        {/* جنسیت */}
-        <Box mb={2}>
-          <Controller
-            name="gender"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <FormControl variant="outlined" fullWidth error={!!errors.gender}>
-                <InputLabel>جنسیت</InputLabel>
-                <Select {...field} label="جنسیت">
-                  <MenuItem value="مرد">مرد</MenuItem>
-                  <MenuItem value="زن">زن</MenuItem>
-                </Select>
-                <FormHelperText>{errors.gender?.message}</FormHelperText>
-              </FormControl>
-            )}
-          />
+        <Box mb={3}>
+          <FormControl component="fieldset" error={!!errors.smoking} fullWidth>
+            <FormLabel component="legend">آیا سیگار می‌کشید؟ </FormLabel>
+            <FormGroup>
+              <Controller
+                name="smoking"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">بلی</MenuItem>
+                    <MenuItem value="2">گاهی</MenuItem>
+                    <MenuItem value="3"> ترک کرده‌ام</MenuItem>
+                    <MenuItem value="4">
+                      {" "}
+                      هیچگاه مصرف نکرده‌ام (زیر 100 عدد شامل این گزینه می‌شود)
+                    </MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.smoking?.message}</FormHelperText>
+          </FormControl>
+        </Box>
+
+        <Box mb={3}>
+          <FormControl
+            component="fieldset"
+            error={!!errors.addictionTreatment}
+            fullWidth
+          >
+            <FormLabel component="legend">
+              آیا سابقه درمان اعتیاد دارید؟
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="addictionTreatment"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">بله</MenuItem>
+                    <MenuItem value="2">خیر</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>
+              {errors.addictionTreatment?.message}
+            </FormHelperText>
+          </FormControl>
+        </Box>
+
+        <Box mb={3}>
+          <FormControl component="fieldset" error={!!errors.gender} fullWidth>
+            <FormLabel component="legend">جنسیت شما چیست؟</FormLabel>
+            <FormGroup>
+              <Controller
+                name="gender"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <Select {...field} fullWidth>
+                    <MenuItem value="1">مرد</MenuItem>
+                    <MenuItem value="2">زن</MenuItem>
+                  </Select>
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.gender?.message}</FormHelperText>
+          </FormControl>
         </Box>
 
         <Button type="submit" variant="contained" color="primary" fullWidth>
@@ -366,8 +566,11 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
         </Button>
       </form>
 
-      {/* نمایش مدال */}
-      <ResultModal open={openModal} message={resultMessage} onClose={handleCloseModal} />
+      <ResultModal
+        open={openModal}
+        message={resultMessage}
+        onClose={handleCloseModal}
+      />
     </>
   );
 };
