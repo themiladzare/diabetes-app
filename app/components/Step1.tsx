@@ -9,6 +9,7 @@ import {
   MenuItem,
   FormHelperText,
   TextField,
+  Container,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
@@ -20,14 +21,20 @@ import toast from "react-hot-toast";
 const schema = yup.object().shape({
   weight: yup
     .number()
+    .typeError("وزن باید یک عدد باشد")
     .required("وزن الزامی است")
     .positive("وزن باید مثبت باشد")
-    .integer("وزن باید عدد صحیح باشد"),
+    .integer("وزن باید عدد صحیح باشد")
+    .min(30, "وزن نمی‌تواند کمتر از 30 کیلوگرم باشد")
+    .max(300, "وزن نمی‌تواند بیشتر از 300 کیلوگرم باشد"),
   height: yup
     .number()
+    .typeError("قد باید یک عدد باشد")
     .required("قد الزامی است")
     .positive("قد باید مثبت باشد")
-    .integer("قد باید عدد صحیح باشد"),
+    .integer("قد باید عدد صحیح باشد")
+    .min(100, "قد نمی‌تواند کمتر از 100 سانتی‌متر باشد")
+    .max(250, "قد نمی‌تواند بیشتر از 250 سانتی‌متر باشد"),
   ageRange: yup.string(),
   intenseExercise: yup.string(),
   moderateExercise: yup.string(),
@@ -45,7 +52,7 @@ const schema = yup.object().shape({
   gender: yup.string(),
 });
 
-const Step1 = ({ nextStep }: { nextStep: () => void }) => {
+const Step1 = ({ nextStep, setResultInParent }) => {
   const {
     control,
     handleSubmit,
@@ -53,10 +60,11 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
   } = useForm({
     resolver: yupResolver(schema),
   });
+
   const [openModal, setOpenModal] = useState(false);
   const [resultMessage, setResultMessage] = useState("");
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data) => {
     const dataPost = {
       Vazn: data?.weight,
       Ghad: data?.height,
@@ -85,25 +93,28 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
 
       const result = response.data;
 
-      let resultMessage;
-      if (result.prediction === 1) {
-        resultMessage = `دیابت دارید و احتمال دیابت داشتن شما ${
-          result.confidence_class_0 * 100
-        }% است.`;
-      } else {
-        resultMessage = `شما دیابت ندارید و احتمال نداشتن دیابت ${
-          result.confidence_class_1 * 100
-        }% است.`;
-      }
+      const message =
+        result.prediction === 1
+          ? `دیابت دارید و احتمال دیابت داشتن شما ${
+              result.confidence_class_0 * 100
+            }% است.`
+          : `شما دیابت ندارید و احتمال نداشتن دیابت ${
+              result.confidence_class_1 * 100
+            }% است.`;
 
-      setResultMessage(resultMessage);
-
+      setResultMessage(message);
+      setResultInParent(message)
       setOpenModal(true);
+      setResultInParent(result); // Pass result to parent component
     } catch (error) {
-      // console.error("Error submitting data:", error);
-      setResultMessage("خطایی در ارسال داده‌ها رخ داد.");
-      toast.error("خطایی در ارسال داده‌ها رخ داد.");
-      setOpenModal(true);
+      if (
+        error.code === "ERR_NETWORK" ||
+        error.message.includes("ERR_CONNECTION_REFUSED")
+      ) {
+        toast.error("اتصال به سرور برقرار نشد. لطفاً اتصال خود را بررسی کنید.");
+      } else {
+        toast.error("خطایی در ارسال داده‌ها رخ داد.");
+      }
     }
   };
 
@@ -112,12 +123,41 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
     nextStep();
   };
 
+  const renderSelectField = (name, label, options) => (
+    <Box mb={3}>
+      <FormControl component="fieldset" error={!!errors[name]} fullWidth>
+        <FormLabel component="legend" sx={{ mb: 1 }}>
+          {label}
+        </FormLabel>
+        <FormGroup>
+          <Controller
+            name={name}
+            control={control}
+            defaultValue=""
+            render={({ field }) => (
+              <Select {...field} fullWidth>
+                {options.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            )}
+          />
+        </FormGroup>
+        <FormHelperText>{errors[name]?.message}</FormHelperText>
+      </FormControl>
+    </Box>
+  );
+
   return (
-    <>
+    <Container maxWidth="sm">
       <form onSubmit={handleSubmit(onSubmit)}>
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.weight} fullWidth>
-            <FormLabel component="legend">وزن شما چقدر است؟</FormLabel>
+            <FormLabel component="legend" sx={{ mb: 1 }}>
+              وزن شما چقدر است؟
+            </FormLabel>
             <FormGroup>
               <Controller
                 name="weight"
@@ -134,7 +174,9 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
 
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.height} fullWidth>
-            <FormLabel component="legend">قد شما چقدر است؟</FormLabel>
+            <FormLabel component="legend" sx={{ mb: 1 }}>
+              قد شما چقدر است؟
+            </FormLabel>
             <FormGroup>
               <Controller
                 name="height"
@@ -149,417 +191,120 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
           </FormControl>
         </Box>
 
-        <Box mb={3}>
-          <FormControl component="fieldset" error={!!errors.ageRange} fullWidth>
-            <FormLabel component="legend">محدوده سنی شما چیست؟</FormLabel>
-            <FormGroup>
-              <Controller
-                name="ageRange"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">20-29</MenuItem>
-                    <MenuItem value="2">30-39</MenuItem>
-                    <MenuItem value="3">40-49</MenuItem>
-                    <MenuItem value="4">50-59</MenuItem>
-                    <MenuItem value="5">60-69</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.ageRange?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("ageRange", "محدوده سنی شما چیست؟", [
+          { value: "1", label: "20-29" },
+          { value: "2", label: "30-39" },
+          { value: "3", label: "40-49" },
+          { value: "4", label: "50-59" },
+          { value: "5", label: "60-69" },
+        ])}
 
-        <Box mb={3}>
-          <FormControl
-            component="fieldset"
-            error={!!errors.intenseExercise}
-            fullWidth
-          >
-            <FormLabel component="legend">
-              به طور متوسط چند بار در هفته فعالیت بدنی شدید( که در آن سرعت ضربان
-              قلبتان بالا رفته یا عرق کردید) مثل دویدن یا کار بدنی سنگین، شرکت
-              کرده‌اید؟{" "}
-            </FormLabel>
-            <FormGroup>
-              <Controller
-                name="intenseExercise"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">هرگز</MenuItem>
-                    <MenuItem value="2"> یک بار در هفته</MenuItem>
-                    <MenuItem value="3"> دو بار در هفته</MenuItem>
-                    <MenuItem value="4">سه یا چهار بار در هفته</MenuItem>
-                    <MenuItem value="5"> پنج بار یا بیشتر در هفته</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.intenseExercise?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("intenseExercise", "چند بار فعالیت بدنی شدید؟", [
+          { value: "1", label: "هرگز" },
+          { value: "2", label: "یک بار در هفته" },
+          { value: "3", label: "دو بار در هفته" },
+          { value: "4", label: "سه یا چهار بار در هفته" },
+          { value: "5", label: "پنج بار یا بیشتر در هفته" },
+        ])}
 
-        <Box mb={3}>
-          <FormControl
-            component="fieldset"
-            error={!!errors.moderateExercise}
-            fullWidth
-          >
-            <FormLabel component="legend">
-              به طور متوسط چند بار در هفته فعالیت بدنی متوسط ( که در آن خسته
-              نشدید یا به مقدار کم عرق کردید) مثل تند راه رفتن یا کار متوسط شرکت
-              می‌کنید؟{" "}
-            </FormLabel>
-            <FormGroup>
-              <Controller
-                name="moderateExercise"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">هرگز</MenuItem>
-                    <MenuItem value="2"> یک بار در هفته</MenuItem>
-                    <MenuItem value="3"> دو بار در هفته</MenuItem>
-                    <MenuItem value="4">سه یا چهار بار در هفته</MenuItem>
-                    <MenuItem value="5"> پنج بار یا بیشتر در هفته</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.moderateExercise?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("moderateExercise", "چند بار فعالیت بدنی متوسط؟", [
+          { value: "1", label: "هرگز" },
+          { value: "2", label: "یک بار در هفته" },
+          { value: "3", label: "دو بار در هفته" },
+          { value: "4", label: "سه یا چهار بار در هفته" },
+          { value: "5", label: "پنج بار یا بیشتر در هفته" },
+        ])}
 
-        <Box mb={3}>
-          <FormControl
-            component="fieldset"
-            error={!!errors.midnightBathroom}
-            fullWidth
-          >
-            <FormLabel component="legend">
-              در ماه گذشته چندبار نیمه شب برای دستشویی رفتن بیدار شدید؟{" "}
-            </FormLabel>
-            <FormGroup>
-              <Controller
-                name="midnightBathroom"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">صلا تجربه نکردم</MenuItem>
-                    <MenuItem value="2"> کمتر از هفته‌ای یکبار</MenuItem>
-                    <MenuItem value="3">یک یا دو بار در هفته</MenuItem>
-                    <MenuItem value="4">سه بار یا بیشتر در هفته</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.midnightBathroom?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("midnightBathroom", "چندبار نیمه شب بیدار شدید؟", [
+          { value: "1", label: "صلا تجربه نکردم" },
+          { value: "2", label: "کمتر از هفته‌ای یکبار" },
+          { value: "3", label: "یک یا دو بار در هفته" },
+          { value: "4", label: "سه بار یا بیشتر در هفته" },
+        ])}
 
-        <Box mb={3}>
-          <FormControl
-            component="fieldset"
-            error={!!errors.sodaConsumption}
-            fullWidth
-          >
-            <FormLabel component="legend">
-              هفته‌ای چند بار نوشیدنی گازدار می‌نوشید؟{" "}
-            </FormLabel>
-            <FormGroup>
-              <Controller
-                name="sodaConsumption"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">اصلا</MenuItem>
-                    <MenuItem value="2">کمتر از هفته‌ای یکبار</MenuItem>
-                    <MenuItem value="3">1-2 بار</MenuItem>
-                    <MenuItem value="4">3-4 بار</MenuItem>
-                    <MenuItem value="5"> 5 بار و بیشتر</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.sodaConsumption?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("sodaConsumption", "چند بار نوشیدنی گازدار؟", [
+          { value: "1", label: "اصلا" },
+          { value: "2", label: "کمتر از هفته‌ای یکبار" },
+          { value: "3", label: "1-2 بار" },
+          { value: "4", label: "3-4 بار" },
+          { value: "5", label: "5 بار و بیشتر" },
+        ])}
 
-        <Box mb={3}>
-          <FormControl
-            component="fieldset"
-            error={!!errors.sugarDrink}
-            fullWidth
-          >
-            <FormLabel component="legend">
-              در هفته چه میزان از نوشیدنی‌های شیرین شده با شکر نظیر شربت‌های
-              خانگی و بسته بندی و آب میوه‌های بسته بندی استفاده می‌کنید؟{" "}
-            </FormLabel>
-            <FormGroup>
-              <Controller
-                name="sugarDrink"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">اصلا</MenuItem>
-                    <MenuItem value="2">کمتر از هفته‌ای یکبار</MenuItem>
-                    <MenuItem value="3">یکبار</MenuItem>
-                    <MenuItem value="4">3-2 بار</MenuItem>
-                    <MenuItem value="5"> 4 بار و بیشتر</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.sugarDrink?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("sugarDrink", "نوشیدنی‌های شیرین شده با شکر؟", [
+          { value: "1", label: "اصلا" },
+          { value: "2", label: "کمتر از هفته‌ای یکبار" },
+          { value: "3", label: "یکبار" },
+          { value: "4", label: "3-2 بار" },
+          { value: "5", label: "4 بار و بیشتر" },
+        ])}
 
-        <Box mb={3}>
-          <FormControl component="fieldset" error={!!errors.unknow} fullWidth>
-            <FormLabel component="legend">نامشخص</FormLabel>
-            <FormGroup>
-              <Controller
-                name="unknow"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">تبلیغات</MenuItem>
-                    <MenuItem value="2">به عنوان یک سرگرمی</MenuItem>
-                    <MenuItem value="3">
-                      امکان مصرف ان با خانواده و دوستان
-                    </MenuItem>
-                    <MenuItem value="4">سایر موارد</MenuItem>
-                    <MenuItem value="5">اصلا استفاده نمیکنم</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.unknow?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("unknow", "نامشخص", [
+          { value: "1", label: "تبلیغات" },
+          { value: "2", label: "به عنوان یک سرگرمی" },
+          { value: "3", label: "امکان مصرف ان با خانواده و دوستان" },
+          { value: "4", label: "سایر موارد" },
+          { value: "5", label: "اصلا استفاده نمیکنم" },
+        ])}
 
-        <Box mb={3}>
-          <FormControl component="fieldset" error={!!errors.fastFood} fullWidth>
-            <FormLabel component="legend">
-              همبرگر، سوسیس، کالباس، پیتزا:
-            </FormLabel>
-            <FormGroup>
-              <Controller
-                name="fastFood"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">روزی یکبار</MenuItem>
-                    <MenuItem value="2">هفته‌ای 3-1 بار</MenuItem>
-                    <MenuItem value="3"> ماهی 3-1 بار</MenuItem>
-                    <MenuItem value="4"> سالی 10-5 بار</MenuItem>
-                    <MenuItem value="5"> هرگز</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.fastFood?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("fastFood", "همبرگر، سوسیس، کالباس، پیتزا:", [
+          { value: "1", label: "روزی یکبار" },
+          { value: "2", label: "هفته‌ای 3-1 بار" },
+          { value: "3", label: "ماهی 3-1 بار" },
+          { value: "4", label: "سالی 10-5 بار" },
+          { value: "5", label: "هرگز" },
+        ])}
 
-        <Box mb={3}>
-          <FormControl
-            component="fieldset"
-            error={!!errors.friedFood}
-            fullWidth
-          >
-            <FormLabel component="legend">
-              سیب زمینی سرخ کرده، سمبوسه، فلافل، ناگت:{" "}
-            </FormLabel>
-            <FormGroup>
-              <Controller
-                name="friedFood"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">روزی یکبار</MenuItem>
-                    <MenuItem value="2">هفته‌ای 3-1 بار</MenuItem>
-                    <MenuItem value="3"> ماهی 3-1 بار</MenuItem>
-                    <MenuItem value="4"> سالی 10-5 بار</MenuItem>
-                    <MenuItem value="5"> هرگز</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.friedFood?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("friedFood", "سیب زمینی سرخ کرده و غیره:", [
+          { value: "1", label: "روزی یکبار" },
+          { value: "2", label: "هفته‌ای 3-1 بار" },
+          { value: "3", label: "ماهی 3-1 بار" },
+          { value: "4", label: "سالی 10-5 بار" },
+          { value: "5", label: "هرگز" },
+        ])}
 
-        <Box mb={3}>
-          <FormControl
-            component="fieldset"
-            error={!!errors.sugarCubes}
-            fullWidth
-          >
-            <FormLabel component="legend">
-              به طور متوسط هر روز جند حبه قند در اندازه متوسط مصرف می‌کنید؟
-            </FormLabel>
-            <FormGroup>
-              <Controller
-                name="sugarCubes"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">اصلا</MenuItem>
-                    <MenuItem value="2">1-2 بار</MenuItem>
-                    <MenuItem value="3">3-4 بار</MenuItem>
-                    <MenuItem value="4">5-8 بار</MenuItem>
-                    <MenuItem value="5">9 بار و بیشتر</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.sugarCubes?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("sugarCubes", "حبه قند مصرفی روزانه:", [
+          { value: "1", label: "اصلا" },
+          { value: "2", label: "1-2 بار" },
+          { value: "3", label: "3-4 بار" },
+          { value: "4", label: "5-8 بار" },
+          { value: "5", label: "9 بار و بیشتر" },
+        ])}
 
-        <Box mb={3}>
-          <FormControl
-            component="fieldset"
-            error={!!errors.cakeConsumption}
-            fullWidth
-          >
-            <FormLabel component="legend">
-              در هفته بطور متوسط چند بار کیک، کلوچه و بیسکوئیت استفاده می‌کنید؟{" "}
-            </FormLabel>
-            <FormGroup>
-              <Controller
-                name="cakeConsumption"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">اصلا</MenuItem>
-                    <MenuItem value="2"> کمتر از هفته‌ای یکبار</MenuItem>
-                    <MenuItem value="3">1-2 بار</MenuItem>
-                    <MenuItem value="4"> 3-4 بار</MenuItem>
-                    <MenuItem value="5"> 5 بار و بیشتر</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.cakeConsumption?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("cakeConsumption", "کیک، کلوچه، بیسکوئیت:", [
+          { value: "1", label: "اصلا" },
+          { value: "2", label: "کمتر از هفته‌ای یکبار" },
+          { value: "3", label: "1-2 بار" },
+          { value: "4", label: "3-4 بار" },
+          { value: "5", label: "5 بار و بیشتر" },
+        ])}
 
-        <Box mb={3}>
-          <FormControl
-            component="fieldset"
-            error={!!errors.snackConsumption}
-            fullWidth
-          >
-            <FormLabel component="legend">
-              در هفته بطور متوسط چندبار از میان وعده‌هایی مثل چیپس، پفک و کرانچی
-              استفاده می‌کنید؟{" "}
-            </FormLabel>
-            <FormGroup>
-              <Controller
-                name="snackConsumption"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">اصلا</MenuItem>
-                    <MenuItem value="2">کمتر از هفته‌ای یکبار</MenuItem>
-                    <MenuItem value="3"> 1-2 بار</MenuItem>
-                    <MenuItem value="4"> 3-4 بار 3-4 بار</MenuItem>
-                    <MenuItem value="5"> 3-4 بار</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.snackConsumption?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("snackConsumption", "میان وعده‌هایی مثل چیپس:", [
+          { value: "1", label: "اصلا" },
+          { value: "2", label: "کمتر از هفته‌ای یکبار" },
+          { value: "3", label: "1-2 بار" },
+          { value: "4", label: "3-4 بار" },
+          { value: "5", label: "5 بار و بیشتر" },
+        ])}
 
-        <Box mb={3}>
-          <FormControl component="fieldset" error={!!errors.smoking} fullWidth>
-            <FormLabel component="legend">آیا سیگار می‌کشید؟ </FormLabel>
-            <FormGroup>
-              <Controller
-                name="smoking"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">بلی</MenuItem>
-                    <MenuItem value="2">گاهی</MenuItem>
-                    <MenuItem value="3"> ترک کرده‌ام</MenuItem>
-                    <MenuItem value="4">
-                      {" "}
-                      هیچگاه مصرف نکرده‌ام (زیر 100 عدد شامل این گزینه می‌شود)
-                    </MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.smoking?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("smoking", "آیا سیگار می‌کشید؟", [
+          { value: "1", label: "بلی" },
+          { value: "2", label: "گاهی" },
+          { value: "3", label: "ترک کرده‌ام" },
+          {
+            value: "4",
+            label: "هیچگاه مصرف نکرده‌ام (زیر 100 عدد شامل این گزینه می‌شود)",
+          },
+        ])}
 
-        <Box mb={3}>
-          <FormControl
-            component="fieldset"
-            error={!!errors.addictionTreatment}
-            fullWidth
-          >
-            <FormLabel component="legend">
-              آیا سابقه درمان اعتیاد دارید؟
-            </FormLabel>
-            <FormGroup>
-              <Controller
-                name="addictionTreatment"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">بله</MenuItem>
-                    <MenuItem value="2">خیر</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>
-              {errors.addictionTreatment?.message}
-            </FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("addictionTreatment", "سابقه درمان اعتیاد دارید؟", [
+          { value: "1", label: "بله" },
+          { value: "2", label: "خیر" },
+        ])}
 
-        <Box mb={3}>
-          <FormControl component="fieldset" error={!!errors.gender} fullWidth>
-            <FormLabel component="legend">جنسیت شما چیست؟</FormLabel>
-            <FormGroup>
-              <Controller
-                name="gender"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <Select {...field} fullWidth>
-                    <MenuItem value="1">مرد</MenuItem>
-                    <MenuItem value="2">زن</MenuItem>
-                  </Select>
-                )}
-              />
-            </FormGroup>
-            <FormHelperText>{errors.gender?.message}</FormHelperText>
-          </FormControl>
-        </Box>
+        {renderSelectField("gender", "جنسیت شما چیست؟", [
+          { value: "1", label: "مرد" },
+          { value: "2", label: "زن" },
+        ])}
 
         <Button type="submit" variant="contained" color="primary" fullWidth>
           بعدی
@@ -571,7 +316,7 @@ const Step1 = ({ nextStep }: { nextStep: () => void }) => {
         message={resultMessage}
         onClose={handleCloseModal}
       />
-    </>
+    </Container>
   );
 };
 
