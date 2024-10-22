@@ -1,20 +1,35 @@
-// components/Step3.tsx
-import React, { useState } from "react";
-import { Box, Button, TextField, FormHelperText } from "@mui/material";
+import React from "react";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  FormGroup,
+  Select,
+  MenuItem,
+  FormHelperText,
+  Container,
+} from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import ResultModal from "./ResultModal";
+import CircularProgress from "@mui/material/CircularProgress";
 
-// تعریف اعتبارسنجی با Yup
+// Define validation schema using Yup
 const schema = yup.object().shape({
-  heartComplications: yup.string().required("سابقه عوارض قلبی الزامی است"),
-  eyeComplications: yup.string().required("سابقه عوارض چشمی الزامی است"),
-  kidneyComplications: yup.string().required("سابقه عوارض کلیوی الزامی است"),
+  test62: yup.string(),
+  test71: yup.string(),
+  test72: yup.string(),
+  test82: yup.string(),
+  test88: yup.string(),
+  test89: yup.string(),
+  test92: yup.string(),
+  test102: yup.string(),
+  test106: yup.string(),
 });
 
-// تعریف کامپوننت مرحله سوم
-const Step3 = ({ nextStep }: { nextStep: () => void }) => {
+const Step3 = ({ nextStep, loading }) => {
+  // Initialize react-hook-form with Yup validation
   const {
     control,
     handleSubmit,
@@ -22,97 +37,125 @@ const Step3 = ({ nextStep }: { nextStep: () => void }) => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-  const [openModal, setOpenModal] = useState(false); // برای کنترل نمایش مدال
-  const [resultMessage, setResultMessage] = useState(""); // برای ذخیره پیام نتیجه
 
-  const onSubmit = async (data: any) => {
-    console.log(data); // برای مشاهده داده‌های ورودی در کنسول
+  // Handle form submission
+  const onSubmit = async (data) => nextStep(data);
 
-    // شبیه‌سازی درخواست به سرور (در اینجا می‌توانید کد واقعی API را اضافه کنید)
-    const response = await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve("داده با موفقیت ارسال شد!"); // پیام موفقیت
-      }, 1000);
-    });
-
-    setResultMessage(response as string); // ذخیره پیام نتیجه
-    setOpenModal(true); // باز کردن مدال
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false); // بسته شدن مدال
-    nextStep(); // رفتن به مرحله بعد
-  };
+  // Render select field with Controller from react-hook-form
+  const renderSelectField = (name, label, options) => (
+    <Box mb={3}>
+      <FormControl component="fieldset" error={!!errors[name]} fullWidth>
+        <FormLabel component="legend" sx={{ mb: 1 }}>
+          {label}
+        </FormLabel>
+        <FormGroup>
+          <Controller
+            name={name}
+            control={control}
+            defaultValue=""
+            render={({ field }) => (
+              <Select {...field} fullWidth>
+                {options.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            )}
+          />
+        </FormGroup>
+        <FormHelperText>{errors[name]?.message}</FormHelperText>
+      </FormControl>
+    </Box>
+  );
 
   return (
-    <>
+    <Container maxWidth="sm">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Box mb={2}>
-          <Controller
-            name="heartComplications"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="عوارض قلبی (سابقه آنژیوگرافی)"
-                variant="outlined"
-                fullWidth
-                error={!!errors.heartComplications}
-                helperText={errors.heartComplications?.message}
-              />
-            )}
-          />
-        </Box>
-        <Box mb={2}>
-          <Controller
-            name="eyeComplications"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="عوارض چشمی"
-                variant="outlined"
-                fullWidth
-                error={!!errors.eyeComplications}
-                helperText={errors.eyeComplications?.message}
-              />
-            )}
-          />
-        </Box>
-        <Box mb={2}>
-          <Controller
-            name="kidneyComplications"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="عوارض کلیوی"
-                variant="outlined"
-                fullWidth
-                error={!!errors.kidneyComplications}
-                helperText={errors.kidneyComplications?.message}
-              />
-            )}
-          />
-        </Box>
-        <button
-          type="submit"
-          className="w-full bg-slate-900 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 text-white font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center  dark:bg-sky-500 dark:highlight-white/20 dark:hover:bg-sky-400"
-        >
-          بعدی
-        </button>
-      </form>
+        {/* Render all select fields with respective labels and options */}
+        {renderSelectField("test62", "بیماری قلبی؟", [
+          { value: "1", label: "بله" },
+          { value: "2", label: "خیر" },
+        ])}
 
-      {/* استفاده از کامپوننت مدال */}
-      <ResultModal
-        open={openModal}
-        message={resultMessage}
-        onClose={handleCloseModal}
-      />
-    </>
+        {renderSelectField("test71", "پرفشاری خون؟", [
+          { value: "1", label: "بله" },
+          { value: "2", label: "خیر" },
+        ])}
+
+        {renderSelectField(
+          "test72",
+          "درصورت ابتلا به بيماری فوق(پرفشاری خون)، چند سال ازشروع آن می گذرد؟",
+          [
+            { value: "1", label: "کمتر از یک سال" },
+            { value: "2", label: "1-2 سال" },
+            { value: "3", label: "3-4 سال" },
+            { value: "4", label: "5-6 سال" },
+            { value: "5", label: "7سال و بیشتر" },
+          ]
+        )}
+
+        {renderSelectField(
+          "test82",
+          "از کدام روش برای کنترل ديابت استفاده می کنيد؟",
+          [
+            { value: "1", label: "رژيم غذايی" },
+            { value: "2", label: " داروی گياهی" },
+            { value: "3", label: "قرص" },
+            { value: "4", label: "انسولين" },
+            { value: "5", label: "هیچکدام" },
+          ]
+        )}
+
+        {renderSelectField(
+          "test88",
+          " آيا بستگان درجه يک (پدر، مادر، خواھر، برادر، فرزندان) شما سابقه دیابت را دارند؟",
+          [
+            { value: "1", label: "بله" },
+            { value: "2", label: "خیر" },
+          ]
+        )}
+
+        {renderSelectField("test89", "افزايش کلسترول خون دارید؟", [
+          { value: "1", label: "بله" },
+          { value: "2", label: "خیر" },
+        ])}
+
+        {renderSelectField(
+          "test92",
+          "آيا بستگان درجه يک (پدر،مادر، خواھر، برادر، فرزندان) شما سابقه بيماری کلسترول خون را دارند؟",
+          [
+            { value: "1", label: "بله" },
+            { value: "2", label: "خیر" },
+          ]
+        )}
+
+        {renderSelectField("test102", "مشکلات غده تيروئيد دارید؟", [
+          { value: "1", label: "بله" },
+          { value: "2", label: "خیر" },
+        ])}
+
+        {renderSelectField(
+          "test106",
+          "آيا بستگان درجه يک (پدر، مادر، خواھر، برادر، فرزندان) شما سابقه اين بيماری را دارند؟",
+          [
+            { value: "1", label: "بله" },
+            { value: "2", label: "خیر" },
+          ]
+        )}
+
+        {/* Submit button with loading indicator */}
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={loading}
+          color="primary"
+          fullWidth
+        >
+          {loading ? <CircularProgress color="white" /> : "بعدی"}
+        </Button>
+      </form>
+    </Container>
   );
 };
 

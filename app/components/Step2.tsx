@@ -1,29 +1,30 @@
-// components/Step2.tsx
 import React, { useState } from "react";
-import { Box, Button, TextField, FormHelperText } from "@mui/material";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  FormGroup,
+  Select,
+  MenuItem,
+  FormHelperText,
+  TextField,
+  Container,
+} from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import ResultModal from "./ResultModal";
+import CircularProgress from "@mui/material/CircularProgress";
 
-// تعریف اعتبارسنجی با Yup
 const schema = yup.object().shape({
-  fastingBloodSugar: yup
-    .number()
-    .required("قند خون ناشتا الزامی است")
-    .positive("قند خون باید مثبت باشد"),
-  hemoglobin: yup
-    .number()
-    .required("هموگلوبین الزامی است")
-    .positive("هموگلوبین باید مثبت باشد"),
-  cholesterol: yup
-    .number()
-    .required("کلسترول الزامی است")
-    .positive("کلسترول باید مثبت باشد"),
+  FSG: yup.number(),
+  Chol: yup.number(),
+  HDL: yup.number(),
+  TG: yup.number(),
+  LDL: yup.number(),
 });
 
-// تعریف کامپوننت مرحله دوم
-const Step2 = ({ nextStep }: { nextStep: () => void }) => {
+const Step2 = ({ nextStep, loading }) => {
   const {
     control,
     handleSubmit,
@@ -31,98 +32,207 @@ const Step2 = ({ nextStep }: { nextStep: () => void }) => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-  const [openModal, setOpenModal] = useState(false); // برای کنترل نمایش مدال
-  const [resultMessage, setResultMessage] = useState(""); // برای ذخیره پیام نتیجه
 
-  const onSubmit = async (data: any) => {
-    console.log(data); // برای مشاهده داده‌های ورودی در کنسول
+  
 
-    // شبیه‌سازی درخواست به سرور (در اینجا می‌توانید کد واقعی API را اضافه کنید)
-    const response = await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve("داده با موفقیت ارسال شد!"); // پیام موفقیت
-      }, 1000);
-    });
-
-    setResultMessage(response as string); // ذخیره پیام نتیجه
-    setOpenModal(true); // باز کردن مدال
+  const onSubmit = async (data) => {
+    nextStep(data);
   };
 
   const handleCloseModal = () => {
-    setOpenModal(false); // بسته شدن مدال
-    nextStep(); // رفتن به مرحله بعد
+    nextStep();
   };
 
   return (
-    <>
+    <Container maxWidth="sm">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Box mb={2}>
-          <Controller
-            name="fastingBloodSugar"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="قند خون ناشتا (mg/dL)"
-                variant="outlined"
-                fullWidth
-                error={!!errors.fastingBloodSugar}
-                helperText={errors.fastingBloodSugar?.message}
+        <div className="text-gray-500 text-sm !mb-8 mt-4">
+          مقادیر هر یک از پارامتر های زیر را با توجه به اخرین آزمایشاتی که انجام
+          داده اید، وارد کنید
+        </div>
+
+        <Box mb={3}>
+          <FormControl component="fieldset" error={!!errors.FSG} fullWidth>
+            <FormLabel component="legend" sx={{ mb: 1 }}>
+              FSG
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="FSG"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField {...field} variant="outlined" fullWidth />
+                )}
               />
-            )}
-          />
+            </FormGroup>
+            <FormHelperText>{errors.FSG?.message}</FormHelperText>
+          </FormControl>
         </Box>
-        <Box mb={2}>
-          <Controller
-            name="hemoglobin"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="هموگلوبین (g/dL)"
-                variant="outlined"
-                fullWidth
-                error={!!errors.hemoglobin}
-                helperText={errors.hemoglobin?.message}
+
+        <Box mb={3}>
+          <FormControl component="fieldset" error={!!errors.Chol} fullWidth>
+            <FormLabel component="legend" sx={{ mb: 1 }}>
+              Chol
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="Chol"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField {...field} variant="outlined" fullWidth />
+                )}
               />
-            )}
-          />
+            </FormGroup>
+            <FormHelperText>{errors.Chol?.message}</FormHelperText>
+          </FormControl>
         </Box>
-        <Box mb={2}>
-          <Controller
-            name="cholesterol"
-            control={control}
-            defaultValue=""
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="کلسترول (mg/dL)"
-                variant="outlined"
-                fullWidth
-                error={!!errors.cholesterol}
-                helperText={errors.cholesterol?.message}
+
+        <Box mb={3}>
+          <FormControl component="fieldset" error={!!errors.HDL} fullWidth>
+            <FormLabel component="legend" sx={{ mb: 1 }}>
+              HDL
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="HDL"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField {...field} variant="outlined" fullWidth />
+                )}
               />
-            )}
-          />
+            </FormGroup>
+            <FormHelperText>{errors.HDL?.message}</FormHelperText>
+          </FormControl>
         </Box>
-        <button
-          type="submit"
-          className="w-full bg-slate-900 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 text-white font-semibold h-12 px-6 rounded-lg w-full flex items-center justify-center  dark:bg-sky-500 dark:highlight-white/20 dark:hover:bg-sky-400"
-        >
-          بعدی
-        </button>
+
+        <Box mb={3}>
+          <FormControl component="fieldset" error={!!errors.TG} fullWidth>
+            <FormLabel component="legend" sx={{ mb: 1 }}>
+              TG
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="TG"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField {...field} variant="outlined" fullWidth />
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.TG?.message}</FormHelperText>
+          </FormControl>
+        </Box>
+
+        <Box mb={3}>
+          <FormControl component="fieldset" error={!!errors.LDL} fullWidth>
+            <FormLabel component="legend" sx={{ mb: 1 }}>
+              LDL
+            </FormLabel>
+            <FormGroup>
+              <Controller
+                name="LDL"
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField {...field} variant="outlined" fullWidth />
+                )}
+              />
+            </FormGroup>
+            <FormHelperText>{errors.LDL?.message}</FormHelperText>
+          </FormControl>
+        </Box>
+
+        <Button type="submit" variant="contained" disabled={loading} color="primary" fullWidth>
+        {loading ? <CircularProgress color="white" /> : "بعدی"}
+
+        </Button>
       </form>
 
-      {/* استفاده از کامپوننت مدال */}
-      <ResultModal
-        open={openModal}
-        message={resultMessage}
-        onClose={handleCloseModal}
-      />
-    </>
+      
+    </Container>
   );
 };
 
 export default Step2;
+// import React, { useState } from "react";
+// import {
+//   Box,
+//   Button,
+//   FormControl,
+//   FormLabel,
+//   FormGroup,
+//   TextField,
+//   Container,
+//   CircularProgress,
+// } from "@mui/material";
+// import { useForm, Controller } from "react-hook-form";
+// import * as yup from "yup";
+// import { yupResolver } from "@hookform/resolvers/yup";
+
+// const schema = yup.object().shape({
+//   FSG: yup.number(),
+//   Chol: yup.number(),
+//   HDL: yup.number(),
+//   TG: yup.number(),
+//   LDL: yup.number(),
+// });
+
+// const Step2 = ({ nextStep, loading }) => {
+//   const {
+//     control,
+//     handleSubmit,
+//     formState: { errors },
+//   } = useForm({
+//     resolver: yupResolver(schema),
+//   });
+
+//   const onSubmit = async (data) => nextStep(data);
+
+//   return (
+//     <Container maxWidth="sm">
+//       <form onSubmit={handleSubmit(onSubmit)}>
+//         <div className="text-gray-500 text-sm !mb-8 mt-4">
+//           مقادیر هر یک از پارامتر های زیر را با توجه به اخرین آزمایشاتی که انجام
+//           داده اید، وارد کنید
+//         </div>
+
+//         {["FSG", "Chol", "HDL", "TG", "LDL"].map((param) => (
+//           <Box mb={3} key={param}>
+//             <FormControl component="fieldset" error={!!errors[param]} fullWidth>
+//               <FormLabel component="legend" sx={{ mb: 1 }}>
+//                 {param}
+//               </FormLabel>
+//               <FormGroup>
+//                 <Controller
+//                   name={param}
+//                   control={control}
+//                   defaultValue=""
+//                   render={({ field }) => (
+//                     <TextField {...field} variant="outlined" fullWidth />
+//                   )}
+//                 />
+//               </FormGroup>
+//               <FormHelperText>{errors[param]?.message}</FormHelperText>
+//             </FormControl>
+//           </Box>
+//         ))}
+
+//         <Button
+//           type="submit"
+//           variant="contained"
+//           disabled={loading}
+//           color="primary"
+//           fullWidth
+//         >
+//           {loading ? <CircularProgress color="white" /> : "بعدی"}
+//         </Button>
+//       </form>
+//     </Container>
+//   );
+// };
+
+// export default Step2;

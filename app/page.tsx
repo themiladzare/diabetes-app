@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import CircularProgress from "@mui/material/CircularProgress";
 
+
+
 const Home: React.FC = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -44,6 +46,7 @@ const Home: React.FC = () => {
           در حال انتقال به صفحه تست...
         </div>
       )}
+      
     </div>
   );
 };
