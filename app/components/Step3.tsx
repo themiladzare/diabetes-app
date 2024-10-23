@@ -45,7 +45,7 @@ const Step3 = ({ nextStep, loading }) => {
   const renderSelectField = (name, label, options) => (
     <Box mb={3}>
       <FormControl component="fieldset" error={!!errors[name]} fullWidth>
-        <FormLabel component="legend" sx={{ mb: 1 }}>
+        <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
           {label}
         </FormLabel>
         <FormGroup>

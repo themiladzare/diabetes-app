@@ -17,11 +17,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import CircularProgress from "@mui/material/CircularProgress";
 
 const schema = yup.object().shape({
-  FSG: yup.number(),
-  Chol: yup.number(),
-  HDL: yup.number(),
-  TG: yup.number(),
-  LDL: yup.number(),
+  FSG: yup.mixed().test('is-number', 'باید یک عدد باشد', (value) => value === null || value === '' || !isNaN(value)),
+  Chol: yup.mixed().test('is-number', 'باید یک عدد باشد', (value) => value === null || value === '' || !isNaN(value)),
+  HDL: yup.mixed().test('is-number', 'باید یک عدد باشد', (value) => value === null || value === '' || !isNaN(value)),
+  TG: yup.mixed().test('is-number', 'باید یک عدد باشد', (value) => value === null || value === '' || !isNaN(value)),
+  LDL: yup.mixed().test('is-number', 'باید یک عدد باشد', (value) => value === null || value === '' || !isNaN(value)),
 });
 
 const Step2 = ({ nextStep, loading }) => {
@@ -32,8 +32,6 @@ const Step2 = ({ nextStep, loading }) => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-
-  
 
   const onSubmit = async (data) => {
     nextStep(data);
@@ -46,14 +44,14 @@ const Step2 = ({ nextStep, loading }) => {
   return (
     <Container maxWidth="sm">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="text-gray-500 text-sm !mb-8 mt-4">
+        <div className="text-gray-500 text-sm !mb-8 mt-4 text-right">
           مقادیر هر یک از پارامتر های زیر را با توجه به اخرین آزمایشاتی که انجام
           داده اید، وارد کنید
         </div>
 
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.FSG} fullWidth>
-            <FormLabel component="legend" sx={{ mb: 1 }}>
+            <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
               FSG
             </FormLabel>
             <FormGroup>
@@ -72,7 +70,7 @@ const Step2 = ({ nextStep, loading }) => {
 
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.Chol} fullWidth>
-            <FormLabel component="legend" sx={{ mb: 1 }}>
+            <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
               Chol
             </FormLabel>
             <FormGroup>
@@ -91,7 +89,7 @@ const Step2 = ({ nextStep, loading }) => {
 
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.HDL} fullWidth>
-            <FormLabel component="legend" sx={{ mb: 1 }}>
+            <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
               HDL
             </FormLabel>
             <FormGroup>
@@ -110,7 +108,7 @@ const Step2 = ({ nextStep, loading }) => {
 
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.TG} fullWidth>
-            <FormLabel component="legend" sx={{ mb: 1 }}>
+            <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
               TG
             </FormLabel>
             <FormGroup>
@@ -129,7 +127,7 @@ const Step2 = ({ nextStep, loading }) => {
 
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.LDL} fullWidth>
-            <FormLabel component="legend" sx={{ mb: 1 }}>
+            <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
               LDL
             </FormLabel>
             <FormGroup>
@@ -146,93 +144,18 @@ const Step2 = ({ nextStep, loading }) => {
           </FormControl>
         </Box>
 
-        <Button type="submit" variant="contained" disabled={loading} color="primary" fullWidth>
-        {loading ? <CircularProgress color="white" /> : "بعدی"}
-
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={loading}
+          color="primary"
+          fullWidth
+        >
+          {loading ? <CircularProgress color="white" /> : "بعدی"}
         </Button>
       </form>
-
-      
     </Container>
   );
 };
 
 export default Step2;
-// import React, { useState } from "react";
-// import {
-//   Box,
-//   Button,
-//   FormControl,
-//   FormLabel,
-//   FormGroup,
-//   TextField,
-//   Container,
-//   CircularProgress,
-// } from "@mui/material";
-// import { useForm, Controller } from "react-hook-form";
-// import * as yup from "yup";
-// import { yupResolver } from "@hookform/resolvers/yup";
-
-// const schema = yup.object().shape({
-//   FSG: yup.number(),
-//   Chol: yup.number(),
-//   HDL: yup.number(),
-//   TG: yup.number(),
-//   LDL: yup.number(),
-// });
-
-// const Step2 = ({ nextStep, loading }) => {
-//   const {
-//     control,
-//     handleSubmit,
-//     formState: { errors },
-//   } = useForm({
-//     resolver: yupResolver(schema),
-//   });
-
-//   const onSubmit = async (data) => nextStep(data);
-
-//   return (
-//     <Container maxWidth="sm">
-//       <form onSubmit={handleSubmit(onSubmit)}>
-//         <div className="text-gray-500 text-sm !mb-8 mt-4">
-//           مقادیر هر یک از پارامتر های زیر را با توجه به اخرین آزمایشاتی که انجام
-//           داده اید، وارد کنید
-//         </div>
-
-//         {["FSG", "Chol", "HDL", "TG", "LDL"].map((param) => (
-//           <Box mb={3} key={param}>
-//             <FormControl component="fieldset" error={!!errors[param]} fullWidth>
-//               <FormLabel component="legend" sx={{ mb: 1 }}>
-//                 {param}
-//               </FormLabel>
-//               <FormGroup>
-//                 <Controller
-//                   name={param}
-//                   control={control}
-//                   defaultValue=""
-//                   render={({ field }) => (
-//                     <TextField {...field} variant="outlined" fullWidth />
-//                   )}
-//                 />
-//               </FormGroup>
-//               <FormHelperText>{errors[param]?.message}</FormHelperText>
-//             </FormControl>
-//           </Box>
-//         ))}
-
-//         <Button
-//           type="submit"
-//           variant="contained"
-//           disabled={loading}
-//           color="primary"
-//           fullWidth
-//         >
-//           {loading ? <CircularProgress color="white" /> : "بعدی"}
-//         </Button>
-//       </form>
-//     </Container>
-//   );
-// };
-
-// export default Step2;

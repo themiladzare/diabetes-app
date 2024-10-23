@@ -6,7 +6,6 @@ import {
   Step,
   StepLabel,
   Box,
-  Button,
   Typography,
   Container,
   CssBaseline,
@@ -17,6 +16,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import stylisRTLPlugin from "stylis-plugin-rtl";
 import { Toaster, toast } from "react-hot-toast";
 import axios from "axios";
+import { motion } from "framer-motion";
 
 // Importing Step Components
 import Step1 from "./Step1";
@@ -76,11 +76,64 @@ const INITIAL_FORM_DATA: FormData = {
   test106: "",
 };
 
+const ResultMessage = ({
+  prediction,
+  confidence_class_0,
+  confidence_class_1,
+}) => {
+  const message = prediction
+    ? `احتمال اینکه شخص دیابت داشته باشد ${confidence_class_1 * 100}% است.`
+    : `احتمال اینکه شخص دیابت نداشته باشد ${confidence_class_0 * 100}% است.`;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Box
+        sx={{
+          backgroundColor: prediction == 1 ? "#fdecea" : "#e0f7fa",
+          padding: "16px",
+          borderRadius: "8px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+          textAlign: "center",
+          marginTop: "20px",
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: "bold",
+            color: prediction == 1 ? "#d32f2f" : "#00796b",
+          }}
+        >
+          نتیجه فرایند
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 2 }}>
+          {`با توجه به پیش‌بینی، `}
+          <span style={{ fontWeight: "bold" }}>
+            {prediction == 1 ? "دیابت داشته" : "دیابت نداشته"}
+          </span>
+          {` و احتمال آن `}
+          <span style={{ fontWeight: "bold" }}>
+            {prediction == 1
+              ? `${(confidence_class_1 * 100).toFixed(2)}%`
+              : `${(confidence_class_0 * 100).toFixed(2)}%`}
+          </span>
+          {` است.`}
+        </Typography>
+      </Box>
+    </motion.div>
+  );
+};
+
 const StepperComponent: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
   const [isLoading, setIsLoading] = useState(false);
   const [resultMessage, setResultMessage] = useState(false);
+  const [result, setResult] = useState(false);
 
   const sendFormData = async (data: FormData) => {
     try {
@@ -92,16 +145,25 @@ const StepperComponent: React.FC = () => {
       if (response.status === 200) {
         toast.dismiss();
         toast.success("داده‌ها با موفقیت ارسال شدند!");
-        const message =
-          response.data?.prediction === 1
-            ? `دیابت دارید و احتمال دیابت داشتن شما ${
-              response.data?.confidence_class_0 * 100
-              }% است.`
-            : `شما دیابت ندارید و احتمال نداشتن دیابت ${
+        setResult(response.data);
+        // const message =
+        //   response.data?.prediction === 1
+        //     ? `دیابت دارید و احتمال دیابت داشتن شما ${
+        //       response.data?.confidence_class_0 * 100
+        //       }% است.`
+        //     : `شما دیابت ندارید و احتمال نداشتن دیابت ${
+        //       response.data?.confidence_class_1 * 100
+        //       }% است.`;
+        const message = !response.data?.prediction
+          ? `با توجه به پیش‌بینی، احتمال اینکه شخص دیابت داشته باشد ${
               response.data?.confidence_class_1 * 100
-              }% است.`;
+            }% است.`
+          : `با توجه به پیش‌بینی، احتمال اینکه شخص دیابت نداشته باشد ${
+              response.data?.confidence_class_0 * 100
+            }% است.`;
+
         setResultMessage(message);
-        console.log(response.data)
+        console.log(response.data);
         setActiveStep((prev) => prev + 1);
         return response.data;
       }
@@ -125,7 +187,6 @@ const StepperComponent: React.FC = () => {
     setIsLoading(true);
     await sendFormData(updatedFormData);
     setIsLoading(false);
-    
   };
 
   const renderStep = () => {
@@ -141,12 +202,12 @@ const StepperComponent: React.FC = () => {
     <CacheProvider value={cacheRtl}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Container maxWidth="xl" sx={{ mt: 4 }}>
+        <Container maxWidth="xl" sx={{ mt: 8 }}>
           <Box
             sx={{
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
+
               backgroundColor: "white",
               borderRadius: 2,
               boxShadow: 3,
@@ -165,15 +226,47 @@ const StepperComponent: React.FC = () => {
               ))}
             </Stepper>
 
+            {/* {resultMessage && (
+              <div className="text-lg text-gray-600 font-medium text-center mt-8">
+                {resultMessage}
+              </div>
+            )} */}
+
             {resultMessage && (
-              <div className="text-gray-600 font-medium">{resultMessage}</div>
+              <ResultMessage
+                prediction={result?.prediction}
+                confidence_class_0={result?.confidence_class_0}
+                confidence_class_1={result?.confidence_class_1}
+              />
             )}
 
             <Box sx={{ mt: 2, width: "100%", textAlign: "center" }}>
               {activeStep === steps.length ? (
-                <Typography variant="h5">
-                  شما تمام مراحل را کامل کردید!
-                </Typography>
+                <>
+                  <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }} className="!my-8">
+                    تبریک! شما تمامی مراحل را با موفقیت به پایان رساندید 🎉
+                  </Typography>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    style={{
+                      padding: "12px 24px",
+                      backgroundColor: "#1976d2",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      fontSize: "16px",
+                    }}
+                    onClick={() => {
+                      setActiveStep(0);
+                      setResultMessage('')
+                    }}
+                  >
+                    شروع مجدد
+                  </motion.button>
+                </>
               ) : (
                 renderStep()
               )}
