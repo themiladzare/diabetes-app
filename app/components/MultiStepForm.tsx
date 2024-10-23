@@ -17,6 +17,7 @@ import stylisRTLPlugin from "stylis-plugin-rtl";
 import { Toaster, toast } from "react-hot-toast";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { toPersianDigits } from "./numberUtils";
 
 // Importing Step Components
 import Step1 from "./Step1";
@@ -37,7 +38,7 @@ const theme = createTheme({
   },
 });
 
-const steps = ["دموگرافیک", "پاراکلینیکی", "کلینیکی"];
+const steps = ["دمو گرافیک", "پارا کلینیکی", "کلینیکی"];
 
 type FormData = {
   [key: string]: string | number;
@@ -81,9 +82,7 @@ const ResultMessage = ({
   confidence_class_0,
   confidence_class_1,
 }) => {
-  const message = prediction
-    ? `احتمال اینکه شخص دیابت داشته باشد ${confidence_class_1 * 100}% است.`
-    : `احتمال اینکه شخص دیابت نداشته باشد ${confidence_class_0 * 100}% است.`;
+  // 
 
   return (
     <motion.div
@@ -111,15 +110,15 @@ const ResultMessage = ({
           نتیجه فرایند
         </Typography>
         <Typography variant="body1" sx={{ mt: 2 }}>
-          {`با توجه به پیش‌بینی، `}
+          {/* {`با توجه به پیش‌بینی، `} */}
           <span style={{ fontWeight: "bold" }}>
-            {prediction == 1 ? "دیابت داشته" : "دیابت نداشته"}
+            {prediction == 1 ? " دیابت دارید ،" : " دیابت ندارید ،"}
           </span>
-          {` و احتمال آن `}
+          {` میزان اطمینان به پاسخ `}
           <span style={{ fontWeight: "bold" }}>
-            {prediction == 1
-              ? `${(confidence_class_1 * 100).toFixed(2)}%`
-              : `${(confidence_class_0 * 100).toFixed(2)}%`}
+            {prediction == 2
+              ? `${toPersianDigits((confidence_class_1 * 100).toFixed(2))}%`
+              : `${toPersianDigits((confidence_class_0 * 100).toFixed(2))}%`}
           </span>
           {` است.`}
         </Typography>

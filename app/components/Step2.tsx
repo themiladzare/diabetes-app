@@ -52,7 +52,8 @@ const Step2 = ({ nextStep, loading }) => {
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.FSG} fullWidth>
             <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
-              FSG
+            Fasting Blood glucose(FBS)
+
             </FormLabel>
             <FormGroup>
               <Controller
@@ -71,7 +72,7 @@ const Step2 = ({ nextStep, loading }) => {
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.Chol} fullWidth>
             <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
-              Chol
+            Cholesterol (Chol)
             </FormLabel>
             <FormGroup>
               <Controller
@@ -90,7 +91,7 @@ const Step2 = ({ nextStep, loading }) => {
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.HDL} fullWidth>
             <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
-              HDL
+            High-density lipoprotein(HDL)
             </FormLabel>
             <FormGroup>
               <Controller
@@ -109,7 +110,7 @@ const Step2 = ({ nextStep, loading }) => {
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.TG} fullWidth>
             <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
-              TG
+            Triglyceride (TG)
             </FormLabel>
             <FormGroup>
               <Controller
@@ -128,7 +129,8 @@ const Step2 = ({ nextStep, loading }) => {
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.LDL} fullWidth>
             <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
-              LDL
+            Low-density lipoprotein (LDL)
+
             </FormLabel>
             <FormGroup>
               <Controller
