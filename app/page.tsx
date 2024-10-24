@@ -80,11 +80,11 @@ const Home: React.FC = () => {
 
   return (
     <div className="text-center py-32 sm:py-48 lg:py-56">
-      <h1 className="text-balance text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-        سامانه سپید
+      <h1 className="text-balance text-4xl font-bold tracking-tight text-gray-900 sm:text-8xl">
+         سپید
       </h1>
-      <p className="mt-6 text-lg leading-8 text-gray-600">
-        سلامتی شما اولویت شماست، امروز خطر خود را بدانید!
+      <p className="mt-12 text-3xl leading-8 text-gray-600">
+        سامانه پایش یزد دیابت
       </p>
       <div className="mt-10 flex items-center justify-center gap-x-6">
         <motion.button

@@ -82,7 +82,7 @@ const ResultMessage = ({
   confidence_class_0,
   confidence_class_1,
 }) => {
-  // 
+  //
 
   return (
     <motion.div
@@ -213,6 +213,14 @@ const StepperComponent: React.FC = () => {
               p: { xs: 2, sm: 3, md: 4 },
             }}
           >
+            <div className="flex flex-col items-center mb-6">
+              <h1 className="text-balance text-4xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                سپید
+              </h1>
+              <p className="mt-2 text-sm leading-8 text-gray-600">
+                سامانه پایش یزد دیابت
+              </p>
+            </div>
             <Stepper
               activeStep={activeStep}
               alternativeLabel
@@ -242,10 +250,14 @@ const StepperComponent: React.FC = () => {
             <Box sx={{ mt: 2, width: "100%", textAlign: "center" }}>
               {activeStep === steps.length ? (
                 <>
-                  <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }} className="!my-8">
+                  <Typography
+                    variant="h5"
+                    sx={{ fontWeight: "bold", mb: 2 }}
+                    className="!my-8"
+                  >
                     تبریک! شما تمامی مراحل را با موفقیت به پایان رساندید 🎉
                   </Typography>
-                  
+
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
@@ -260,7 +272,7 @@ const StepperComponent: React.FC = () => {
                     }}
                     onClick={() => {
                       setActiveStep(0);
-                      setResultMessage('')
+                      setResultMessage("");
                     }}
                   >
                     شروع مجدد
