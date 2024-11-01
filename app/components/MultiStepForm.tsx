@@ -18,6 +18,9 @@ import { Toaster, toast } from "react-hot-toast";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { toPersianDigits } from "./numberUtils";
+import DialComponent from "./DialComponent";
+import Image from "next/image";
+import cover from "../asset/qa.jpg";
 
 // Importing Step Components
 import Step1 from "./Step1";
@@ -139,20 +142,11 @@ const StepperComponent: React.FC = () => {
       toast.loading("در حال ارسال داده‌ها...");
       const response = await axios.post("http://127.0.0.1:8000/predict/", data);
 
-      // console.log(response)
-
       if (response.status === 200) {
         toast.dismiss();
         toast.success("داده‌ها با موفقیت ارسال شدند!");
         setResult(response.data);
-        // const message =
-        //   response.data?.prediction === 1
-        //     ? `دیابت دارید و احتمال دیابت داشتن شما ${
-        //       response.data?.confidence_class_0 * 100
-        //       }% است.`
-        //     : `شما دیابت ندارید و احتمال نداشتن دیابت ${
-        //       response.data?.confidence_class_1 * 100
-        //       }% است.`;
+
         const message = !response.data?.prediction
           ? `با توجه به پیش‌بینی، احتمال اینکه شخص دیابت داشته باشد ${
               response.data?.confidence_class_1 * 100
@@ -201,7 +195,8 @@ const StepperComponent: React.FC = () => {
     <CacheProvider value={cacheRtl}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Container maxWidth="xl" sx={{ mt: 8 }}>
+        <Box display="flex" justifyContent="center" ></Box>
+        <Container maxWidth="xl" >
           <Box
             sx={{
               display: "flex",
@@ -220,6 +215,13 @@ const StepperComponent: React.FC = () => {
               <p className="mt-2 text-sm leading-8 text-gray-600">
                 سامانه پایش یزد دیابت
               </p>
+              <Image
+                src={cover}
+                width={300}
+                height={150}
+                className=" object-cover rounded-lg shadow-lg"
+                alt="home"
+              />
             </div>
             <Stepper
               activeStep={activeStep}
@@ -249,10 +251,12 @@ const StepperComponent: React.FC = () => {
 
             <Box sx={{ mt: 2, width: "100%", textAlign: "center" }}>
               {activeStep === steps.length ? (
-                <>
+                <div className="flex flex-col items-center">
+                  <DialComponent value={result?.confidence_class_0 * 100} />
+
                   <Typography
                     variant="h5"
-                    sx={{ fontWeight: "bold", mb: 2 }}
+                    sx={{ fontWeight: "bold", mb: 2, mt: 2 }}
                     className="!my-8"
                   >
                     تبریک! شما تمامی مراحل را با موفقیت به پایان رساندید 🎉
@@ -277,7 +281,7 @@ const StepperComponent: React.FC = () => {
                   >
                     شروع مجدد
                   </motion.button>
-                </>
+                </div>
               ) : (
                 renderStep()
               )}
