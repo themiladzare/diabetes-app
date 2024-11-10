@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import {
   Box,
@@ -49,7 +50,13 @@ const schema = yup.object().shape({
   test262: yup.string(),
 });
 
-const Step1 = ({ nextStep, loading }) => {
+interface Step1Props {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  nextStep: (data: any) => void;
+  loading: boolean;
+}
+
+const Step1: React.FC<Step1Props> = ({ nextStep, loading }) => {
   const {
     control,
     handleSubmit,
@@ -58,11 +65,19 @@ const Step1 = ({ nextStep, loading }) => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = async (data) => nextStep(data);
+  const onSubmit = async (data: any) => nextStep(data);
 
-  const renderSelectField = (name, label, options) => (
+  const renderSelectField = (
+    name: any,
+    label: string,
+    options: Array<{ label: string; value: string }>
+  ) => (
     <Box mb={3}>
-      <FormControl component="fieldset" error={!!errors[name]} fullWidth>
+      <FormControl
+        component="fieldset"
+        error={!!errors[name as keyof typeof errors]}
+        fullWidth
+      >
         <FormLabel sx={{ mb: 1 }} className="text-right">
           {label}
         </FormLabel>
@@ -82,29 +97,12 @@ const Step1 = ({ nextStep, loading }) => {
             )}
           />
         </FormGroup>
-        <FormHelperText>{errors[name]?.message}</FormHelperText>
+        <FormHelperText>
+          {errors[name as keyof typeof errors]?.message as string}
+        </FormHelperText>
       </FormControl>
     </Box>
   );
-
-  // const renderTextField = (name, label) => (
-  //   <Box mb={3}>
-  //     <FormControl component="fieldset" error={!!errors[name]} fullWidth>
-  //       <FormLabel sx={{ mb: 1 }}>{label}</FormLabel>
-  //       <FormGroup>
-  //         <Controller
-  //           name={name}
-  //           control={control}
-  //           defaultValue=""
-  //           render={({ field }) => (
-  //             <TextField {...field} variant="outlined" fullWidth />
-  //           )}
-  //         />
-  //       </FormGroup>
-  //       <FormHelperText>{errors[name]?.message}</FormHelperText>
-  //     </FormControl>
-  //   </Box>
-  // );
 
   return (
     <Container maxWidth="sm">
@@ -130,7 +128,7 @@ const Step1 = ({ nextStep, loading }) => {
               <Controller
                 name="height"
                 control={control}
-                defaultValue=""
+                defaultValue={undefined}
                 render={({ field }) => (
                   <TextField {...field} variant="outlined" fullWidth />
                 )}
@@ -149,7 +147,7 @@ const Step1 = ({ nextStep, loading }) => {
               <Controller
                 name="weight"
                 control={control}
-                defaultValue=""
+                defaultValue={undefined}
                 render={({ field }) => (
                   <TextField {...field} variant="outlined" fullWidth />
                 )}
@@ -299,7 +297,7 @@ const Step1 = ({ nextStep, loading }) => {
           color="primary"
           fullWidth
         >
-          {loading ? <CircularProgress color="white" /> : "بعدی"}
+          {loading ? <CircularProgress /> : "بعدی"}
         </Button>
       </form>
     </Container>

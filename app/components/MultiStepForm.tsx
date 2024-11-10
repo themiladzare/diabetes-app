@@ -19,7 +19,6 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { toPersianDigits } from "./numberUtils";
 import DialComponent from "./DialComponent";
-import Image from "next/image";
 import cover from "../asset/qa.jpg";
 
 // Importing Step Components
@@ -80,13 +79,23 @@ const INITIAL_FORM_DATA: FormData = {
   test106: "",
 };
 
+interface ResultMessageProps {
+  prediction: number;
+  confidence_class_0: number;
+  confidence_class_1: number;
+}
+
+interface Result {
+  prediction: number;
+  confidence_class_0: number;
+  confidence_class_1: number;
+}
+
 const ResultMessage = ({
   prediction,
   confidence_class_0,
   confidence_class_1,
-}) => {
-  //
-
+}: ResultMessageProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
@@ -113,7 +122,6 @@ const ResultMessage = ({
           نتیجه فرایند
         </Typography>
         <Typography variant="body1" sx={{ mt: 2 }}>
-          {/* {`با توجه به پیش‌بینی، `} */}
           <span style={{ fontWeight: "bold" }}>
             {prediction == 1 ? " دیابت دارید ،" : " دیابت ندارید ،"}
           </span>
@@ -134,13 +142,14 @@ const StepperComponent: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
   const [isLoading, setIsLoading] = useState(false);
-  const [resultMessage, setResultMessage] = useState(false);
-  const [result, setResult] = useState(false);
+  const [resultMessage, setResultMessage] = useState<string | null>("");
+  const [result, setResult] = useState<Result | null>(null);
 
   const sendFormData = async (data: FormData) => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     try {
       toast.loading("در حال ارسال داده‌ها...");
-      const response = await axios.post("http://127.0.0.1:8000/predict/", data);
+      const response = await axios.post(`${apiUrl}/predict/`, data);
 
       if (response.status === 200) {
         toast.dismiss();
@@ -156,7 +165,6 @@ const StepperComponent: React.FC = () => {
             }% است.`;
 
         setResultMessage(message);
-        console.log(response.data);
         setActiveStep((prev) => prev + 1);
         return response.data;
       }
@@ -184,9 +192,9 @@ const StepperComponent: React.FC = () => {
 
   const renderStep = () => {
     const stepComponents = [
-      <Step1 nextStep={handleNext} loading={isLoading} />,
-      <Step2 nextStep={handleNext} loading={isLoading} />,
-      <Step3 nextStep={handleNext} loading={isLoading} />,
+      <Step1 key="step1" nextStep={handleNext} loading={isLoading} />,
+      <Step2 key="step2" nextStep={handleNext} loading={isLoading} />,
+      <Step3 key="step3" nextStep={handleNext} loading={isLoading} />,
     ];
     return stepComponents[activeStep];
   };
@@ -195,100 +203,117 @@ const StepperComponent: React.FC = () => {
     <CacheProvider value={cacheRtl}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Box display="flex" justifyContent="center" ></Box>
-        <Container maxWidth="xl" >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-
-              backgroundColor: "white",
-              borderRadius: 2,
-              boxShadow: 3,
-              p: { xs: 2, sm: 3, md: 4 },
-            }}
-          >
-            <div className="flex flex-col items-center mb-6">
-              <h1 className="text-balance text-4xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                سپید
-              </h1>
-              <p className="mt-2 text-sm leading-8 text-gray-600">
-                سامانه پایش یزد دیابت
-              </p>
-              <Image
-                src={cover}
-                width={300}
-                height={150}
-                className=" object-cover rounded-lg shadow-lg"
-                alt="home"
-              />
-            </div>
-            <Stepper
-              activeStep={activeStep}
-              alternativeLabel
-              sx={{ width: "100%" }}
-            >
-              {steps.map((label, index) => (
-                <Step key={index}>
-                  <StepLabel>{label}</StepLabel>
-                </Step>
-              ))}
-            </Stepper>
-
-            {/* {resultMessage && (
-              <div className="text-lg text-gray-600 font-medium text-center mt-8">
-                {resultMessage}
-              </div>
-            )} */}
-
-            {resultMessage && (
-              <ResultMessage
-                prediction={result?.prediction}
-                confidence_class_0={result?.confidence_class_0}
-                confidence_class_1={result?.confidence_class_1}
-              />
-            )}
-
-            <Box sx={{ mt: 2, width: "100%", textAlign: "center" }}>
-              {activeStep === steps.length ? (
-                <div className="flex flex-col items-center">
-                  <DialComponent value={result?.confidence_class_0 * 100} />
-
-                  <Typography
-                    variant="h5"
-                    sx={{ fontWeight: "bold", mb: 2, mt: 2 }}
-                    className="!my-8"
-                  >
-                    تبریک! شما تمامی مراحل را با موفقیت به پایان رساندید 🎉
-                  </Typography>
-
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    style={{
-                      padding: "12px 24px",
-                      backgroundColor: "#1976d2",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "8px",
-                      cursor: "pointer",
-                      fontSize: "16px",
-                    }}
-                    onClick={() => {
-                      setActiveStep(0);
-                      setResultMessage("");
-                    }}
-                  >
-                    شروع مجدد
-                  </motion.button>
+        <Box
+          sx={{
+            minHeight: "100vh",
+            backgroundImage: `url(${cover.src})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div className="px-6 pt-14 pb-8 lg:px-8 ">
+            <Container maxWidth="xl">
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  backgroundColor: "rgba(255, 255, 255,.9)", // Semi-transparent white background
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  p: { xs: 2, sm: 3, md: 4 },
+                }}
+              >
+                <div className="flex flex-col items-center mb-6">
+                  <h1 className="text-balance text-4xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                    سپید
+                  </h1>
+                  <p className="mt-2 text-sm leading-8 text-gray-600">
+                    سامانه پایش یزد دیابت
+                  </p>
+                  {/* <Image
+                  src={cover}
+                  width={300}
+                  height={150}
+                  className="object-cover rounded-lg shadow-lg"
+                  alt="home"
+                /> */}
                 </div>
-              ) : (
-                renderStep()
-              )}
-            </Box>
-          </Box>
-          <Toaster />
-        </Container>
+                <Stepper
+                  activeStep={activeStep}
+                  alternativeLabel
+                  sx={{ width: "100%" }}
+                >
+                  {steps.map((label) => (
+                    <Step key={label}>
+                      <StepLabel>{label}</StepLabel>
+                    </Step>
+                  ))}
+                </Stepper>
+
+                {/* {resultMessage && (
+                  <ResultMessage
+                    prediction={result?.prediction}
+                    confidence_class_0={result?.confidence_class_0}
+                    confidence_class_1={result?.confidence_class_1}
+                  />
+                )} */}
+
+                {result && typeof result !== "boolean" && resultMessage && (
+                  <ResultMessage
+                    prediction={result.prediction}
+                    confidence_class_0={result.confidence_class_0}
+                    confidence_class_1={result.confidence_class_1}
+                  />
+                )}
+
+                <Box sx={{ mt: 2, width: "100%", textAlign: "center" }}>
+                  {activeStep === steps.length ? (
+                    <div className="flex flex-col items-center">
+                      {result && typeof result !== "boolean" && (
+                        <DialComponent
+                          value={result.confidence_class_0 * 100}
+                        />
+                      )}
+                      <Typography
+                        variant="h5"
+                        sx={{ fontWeight: "bold", mb: 2, mt: 2 }}
+                        className="!my-8"
+                      >
+                        تبریک! شما تمامی مراحل را با موفقیت به پایان رساندید 🎉
+                      </Typography>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        style={{
+                          padding: "12px 24px",
+                          backgroundColor: "#1976d2",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                          fontSize: "16px",
+                        }}
+                        onClick={() => {
+                          setActiveStep(0);
+                          setResult(null);
+                          setResultMessage(null);
+                        }}
+                      >
+                        شروع دوباره
+                      </motion.button>
+                    </div>
+                  ) : (
+                    renderStep()
+                  )}
+                </Box>
+              </Box>
+            </Container>
+          </div>
+        </Box>
+        <Toaster />
       </ThemeProvider>
     </CacheProvider>
   );

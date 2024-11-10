@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import React from "react";
 import {
   Box,
   Button,
   FormControl,
   FormLabel,
   FormGroup,
-  Select,
-  MenuItem,
   FormHelperText,
   TextField,
   Container,
@@ -17,14 +17,49 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import CircularProgress from "@mui/material/CircularProgress";
 
 const schema = yup.object().shape({
-  FSG: yup.mixed().test('is-number', 'باید یک عدد باشد', (value) => value === null || value === '' || !isNaN(value)),
-  Chol: yup.mixed().test('is-number', 'باید یک عدد باشد', (value) => value === null || value === '' || !isNaN(value)),
-  HDL: yup.mixed().test('is-number', 'باید یک عدد باشد', (value) => value === null || value === '' || !isNaN(value)),
-  TG: yup.mixed().test('is-number', 'باید یک عدد باشد', (value) => value === null || value === '' || !isNaN(value)),
-  LDL: yup.mixed().test('is-number', 'باید یک عدد باشد', (value) => value === null || value === '' || !isNaN(value)),
+  FSG: yup
+    .mixed()
+    .test(
+      "is-number",
+      "باید یک عدد باشد",
+      (value) => value === null || value === "" || !isNaN(Number(value))
+    ),
+  Chol: yup
+    .mixed()
+    .test(
+      "is-number",
+      "باید یک عدد باشد",
+      (value) => value === null || value === "" || !isNaN(Number(value))
+    ),
+  HDL: yup
+    .mixed()
+    .test(
+      "is-number",
+      "باید یک عدد باشد",
+      (value) => value === null || value === "" || !isNaN(Number(value))
+    ),
+  TG: yup
+    .mixed()
+    .test(
+      "is-number",
+      "باید یک عدد باشد",
+      (value) => value === null || value === "" || !isNaN(Number(value))
+    ),
+  LDL: yup
+    .mixed()
+    .test(
+      "is-number",
+      "باید یک عدد باشد",
+      (value) => value === null || value === "" || !isNaN(Number(value))
+    ),
 });
 
-const Step2 = ({ nextStep, loading }) => {
+interface Step1Props {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  nextStep: (data: any) => void;
+  loading: boolean;
+}
+const Step2: React.FC<Step1Props> = ({ nextStep, loading }) => {
   const {
     control,
     handleSubmit,
@@ -33,13 +68,13 @@ const Step2 = ({ nextStep, loading }) => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: any) => {
     nextStep(data);
   };
 
-  const handleCloseModal = () => {
-    nextStep();
-  };
+  // const handleCloseModal = () => {
+  //   nextStep();
+  // };
 
   return (
     <Container maxWidth="sm">
@@ -52,8 +87,7 @@ const Step2 = ({ nextStep, loading }) => {
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.FSG} fullWidth>
             <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
-            Fasting Blood glucose(FBS)
-
+              Fasting Blood glucose(FBS)
             </FormLabel>
             <FormGroup>
               <Controller
@@ -72,7 +106,7 @@ const Step2 = ({ nextStep, loading }) => {
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.Chol} fullWidth>
             <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
-            Cholesterol (Chol)
+              Cholesterol (Chol)
             </FormLabel>
             <FormGroup>
               <Controller
@@ -91,7 +125,7 @@ const Step2 = ({ nextStep, loading }) => {
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.HDL} fullWidth>
             <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
-            High-density lipoprotein(HDL)
+              High-density lipoprotein(HDL)
             </FormLabel>
             <FormGroup>
               <Controller
@@ -110,7 +144,7 @@ const Step2 = ({ nextStep, loading }) => {
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.TG} fullWidth>
             <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
-            Triglyceride (TG)
+              Triglyceride (TG)
             </FormLabel>
             <FormGroup>
               <Controller
@@ -129,8 +163,7 @@ const Step2 = ({ nextStep, loading }) => {
         <Box mb={3}>
           <FormControl component="fieldset" error={!!errors.LDL} fullWidth>
             <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
-            Low-density lipoprotein (LDL)
-
+              Low-density lipoprotein (LDL)
             </FormLabel>
             <FormGroup>
               <Controller
@@ -153,7 +186,7 @@ const Step2 = ({ nextStep, loading }) => {
           color="primary"
           fullWidth
         >
-          {loading ? <CircularProgress color="white" /> : "بعدی"}
+          {loading ? <CircularProgress /> : "بعدی"}
         </Button>
       </form>
     </Container>

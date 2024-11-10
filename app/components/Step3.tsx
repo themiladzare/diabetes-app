@@ -27,8 +27,12 @@ const schema = yup.object().shape({
   test102: yup.string(),
   test106: yup.string(),
 });
-
-const Step3 = ({ nextStep, loading }) => {
+interface Step1Props {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  nextStep: (data: any) => void;
+  loading: boolean;
+}
+const Step3: React.FC<Step1Props> = ({ nextStep, loading }) => {
   // Initialize react-hook-form with Yup validation
   const {
     control,
@@ -39,12 +43,22 @@ const Step3 = ({ nextStep, loading }) => {
   });
 
   // Handle form submission
-  const onSubmit = async (data) => nextStep(data);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onSubmit = async (data :any) => nextStep(data);
 
   // Render select field with Controller from react-hook-form
-  const renderSelectField = (name, label, options) => (
+  const renderSelectField = (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    name: any,
+    label: string,
+    options: Array<{ label: string; value: string }>
+  ) => (
     <Box mb={3}>
-      <FormControl component="fieldset" error={!!errors[name]} fullWidth>
+      <FormControl
+        component="fieldset"
+        error={!!errors[name as keyof typeof errors]}
+        fullWidth
+      >
         <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
           {label}
         </FormLabel>
@@ -64,7 +78,9 @@ const Step3 = ({ nextStep, loading }) => {
             )}
           />
         </FormGroup>
-        <FormHelperText>{errors[name]?.message}</FormHelperText>
+        <FormHelperText>
+          {errors[name as keyof typeof errors]?.message as string}
+        </FormHelperText>
       </FormControl>
     </Box>
   );
@@ -152,7 +168,7 @@ const Step3 = ({ nextStep, loading }) => {
           color="primary"
           fullWidth
         >
-          {loading ? <CircularProgress color="white" /> : "بعدی"}
+          {loading ? <CircularProgress /> : "بعدی"}
         </Button>
       </form>
     </Container>
