@@ -25,7 +25,7 @@ import cover from "../asset/qa.jpg";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
-
+import Step4 from "./Step4"
 // RTL cache configuration
 const cacheRtl = createCache({
   key: "muirtl",
@@ -40,7 +40,7 @@ const theme = createTheme({
   },
 });
 
-const steps = ["دمو گرافیک", "پارا کلینیکی", "کلینیکی"];
+const steps = ["دمو گرافیک", "پارا کلینیکی", "کلینیکی","ژنتیک"];
 
 type FormData = {
   [key: string]: string | number;
@@ -195,6 +195,7 @@ const StepperComponent: React.FC = () => {
       <Step1 key="step1" nextStep={handleNext} loading={isLoading} />,
       <Step2 key="step2" nextStep={handleNext} loading={isLoading} />,
       <Step3 key="step3" nextStep={handleNext} loading={isLoading} />,
+      <Step4 key="step4" nextStep={handleNext} loading={isLoading} />,
     ];
     return stepComponents[activeStep];
   };
