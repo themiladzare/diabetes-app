@@ -1,35 +1,34 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
-import { motion } from "framer-motion";
-import cover from "./asset/home.jpg";
-import Image from "next/image";
+'use client'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Backdrop from '@mui/material/Backdrop'
+import CircularProgress from '@mui/material/CircularProgress'
+import { motion } from 'framer-motion'
+import cover from './asset/home.jpg'
+import Image from 'next/image'
 
-// types/page.ts
-import { NextPage } from "next";
+import { NextPage } from 'next'
 
 export type PageWithNoLayout = NextPage & {
-  noLayout?: boolean;
-};
+  noLayout?: boolean
+}
 
 const Home: PageWithNoLayout = () => {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setLoading(true);
-      router.push("/test");
-    }, 10000);
-    return () => clearTimeout(timer);
-  }, [router]);
+      setLoading(true)
+      router.push('/test')
+    }, 10000)
+    return () => clearTimeout(timer)
+  }, [router])
 
   const handleClick = () => {
-    setLoading(true);
-    router.push("/test");
-  };
+    setLoading(true)
+    router.push('/test')
+  }
 
   return (
     <div className="relative h-screen flex flex-col items-center justify-center text-center">
@@ -53,18 +52,18 @@ const Home: PageWithNoLayout = () => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             style={{
-              padding: "12px 24px",
-              backgroundColor: "#1976d2",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "16px",
+              padding: '12px 24px',
+              backgroundColor: '#1976d2',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '16px',
             }}
             disabled={loading}
             onClick={handleClick}
           >
-            {loading ? "در حال انتقال..." : "اکنون شروع کنید"}
+            {loading ? 'در حال انتقال...' : 'اکنون شروع کنید'}
           </motion.button>
         </div>
       </div>
@@ -72,7 +71,7 @@ const Home: PageWithNoLayout = () => {
         <CircularProgress color="inherit" />
       </Backdrop>
     </div>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home

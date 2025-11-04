@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import React from 'react'
 import {
   Box,
   Button,
@@ -12,28 +12,28 @@ import {
   TextField,
   Container,
   CircularProgress,
-} from "@mui/material";
-import { useForm, Controller } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
+} from '@mui/material'
+import { useForm, Controller } from 'react-hook-form'
+import * as yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 const schema = yup.object().shape({
   weight: yup
     .number()
-    .typeError("وزن باید یک عدد باشد")
-    .required("وزن الزامی است")
-    .positive("وزن باید مثبت باشد")
-    .integer("وزن باید عدد صحیح باشد")
-    .min(30, "وزن نمی‌تواند کمتر از 30 کیلوگرم باشد")
-    .max(300, "وزن نمی‌تواند بیشتر از 300 کیلوگرم باشد"),
+    .typeError('وزن باید یک عدد باشد')
+    .required('وزن الزامی است')
+    .positive('وزن باید مثبت باشد')
+    .integer('وزن باید عدد صحیح باشد')
+    .min(30, 'وزن نمی‌تواند کمتر از 30 کیلوگرم باشد')
+    .max(300, 'وزن نمی‌تواند بیشتر از 300 کیلوگرم باشد'),
   height: yup
     .number()
-    .typeError("قد باید یک عدد باشد")
-    .required("قد الزامی است")
-    .positive("قد باید مثبت باشد")
-    .integer("قد باید عدد صحیح باشد")
-    .min(100, "قد نمی‌تواند کمتر از 100 سانتی‌متر باشد")
-    .max(250, "قد نمی‌تواند بیشتر از 250 سانتی‌متر باشد"),
+    .typeError('قد باید یک عدد باشد')
+    .required('قد الزامی است')
+    .positive('قد باید مثبت باشد')
+    .integer('قد باید عدد صحیح باشد')
+    .min(100, 'قد نمی‌تواند کمتر از 100 سانتی‌متر باشد')
+    .max(250, 'قد نمی‌تواند بیشتر از 250 سانتی‌متر باشد'),
   test1: yup.string(),
   test2: yup.string(),
   test12: yup.string(),
@@ -48,12 +48,12 @@ const schema = yup.object().shape({
   test219: yup.string(),
   test253: yup.string(),
   test262: yup.string(),
-});
+})
 
 interface Step1Props {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  nextStep: (data: any) => void;
-  loading: boolean;
+  nextStep: (data: any) => void
+  loading: boolean
 }
 
 const Step1: React.FC<Step1Props> = ({ nextStep, loading }) => {
@@ -63,9 +63,9 @@ const Step1: React.FC<Step1Props> = ({ nextStep, loading }) => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
-  });
+  })
 
-  const onSubmit = async (data: any) => nextStep(data);
+  const onSubmit = async (data: any) => nextStep(data)
 
   const renderSelectField = (
     name: any,
@@ -102,21 +102,21 @@ const Step1: React.FC<Step1Props> = ({ nextStep, loading }) => {
         </FormHelperText>
       </FormControl>
     </Box>
-  );
+  )
 
   return (
     <Container maxWidth="sm">
       <form onSubmit={handleSubmit(onSubmit)}>
-        {renderSelectField("test1", "محدوده سنی شما چیست؟", [
-          { value: "1", label: "20-29" },
-          { value: "2", label: "30-39" },
-          { value: "3", label: "40-49" },
-          { value: "4", label: "50-59" },
-          { value: "5", label: "60-69" },
+        {renderSelectField('test1', 'محدوده سنی شما چیست؟', [
+          { value: '1', label: '20-29' },
+          { value: '2', label: '30-39' },
+          { value: '3', label: '40-49' },
+          { value: '4', label: '50-59' },
+          { value: '5', label: '60-69' },
         ])}
-        {renderSelectField("test2", "جنسیت شما چیست؟", [
-          { value: "1", label: "مرد" },
-          { value: "2", label: "زن" },
+        {renderSelectField('test2', 'جنسیت شما چیست؟', [
+          { value: '1', label: 'مرد' },
+          { value: '2', label: 'زن' },
         ])}
 
         <Box mb={3}>
@@ -157,137 +157,129 @@ const Step1: React.FC<Step1Props> = ({ nextStep, loading }) => {
           </FormControl>
         </Box>
 
-        {renderSelectField("test12", "چند بار فعالیت بدنی شدید؟", [
-          { value: "1", label: "هرگز" },
-          { value: "2", label: "یک بار در هفته" },
-          { value: "3", label: "دو بار در هفته" },
-          { value: "4", label: "سه یا چهار بار در هفته" },
-          { value: "5", label: "پنج بار یا بیشتر در هفته" },
+        {renderSelectField('test12', 'چند بار فعالیت بدنی شدید؟', [
+          { value: '1', label: 'هرگز' },
+          { value: '2', label: 'یک بار در هفته' },
+          { value: '3', label: 'دو بار در هفته' },
+          { value: '4', label: 'سه یا چهار بار در هفته' },
+          { value: '5', label: 'پنج بار یا بیشتر در هفته' },
         ])}
 
-        {renderSelectField("test14", "چند بار فعالیت بدنی متوسط؟", [
-          { value: "1", label: "هرگز" },
-          { value: "2", label: "یک بار در هفته" },
-          { value: "3", label: "دو بار در هفته" },
-          { value: "4", label: "سه یا چهار بار در هفته" },
-          { value: "5", label: "پنج بار یا بیشتر در هفته" },
+        {renderSelectField('test14', 'چند بار فعالیت بدنی متوسط؟', [
+          { value: '1', label: 'هرگز' },
+          { value: '2', label: 'یک بار در هفته' },
+          { value: '3', label: 'دو بار در هفته' },
+          { value: '4', label: 'سه یا چهار بار در هفته' },
+          { value: '5', label: 'پنج بار یا بیشتر در هفته' },
         ])}
 
         {renderSelectField(
-          "test198",
-          "هفته ای چند بار نوشيدنی گاز دار می نوشيد؟",
+          'test198',
+          'هفته ای چند بار نوشيدنی گاز دار می نوشيد؟',
           [
-            { value: "1", label: "اصلا" },
-            { value: "2", label: "کمتر از هفته‌ای یکبار" },
-            { value: "3", label: "1-2 بار" },
-            { value: "4", label: "3-4 بار" },
-            { value: "5", label: "5 بار و بیشتر" },
+            { value: '1', label: 'اصلا' },
+            { value: '2', label: 'کمتر از هفته‌ای یکبار' },
+            { value: '3', label: '1-2 بار' },
+            { value: '4', label: '3-4 بار' },
+            { value: '5', label: '5 بار و بیشتر' },
           ]
         )}
 
         {renderSelectField(
-          "test199",
-          "در هفته چه میزان از نوشیدنی های شیرین شده با شکر نظیر شربت های خانگی و بسته بندی و ابمیوه های بسته بندی استفاده میکنید؟",
+          'test199',
+          'در هفته چه میزان از نوشیدنی های شیرین شده با شکر نظیر شربت های خانگی و بسته بندی و ابمیوه های بسته بندی استفاده میکنید؟',
           [
-            { value: "1", label: "اصلا" },
-            { value: "2", label: "کمتر از هفته‌ای یکبار" },
-            { value: "3", label: "یکبار" },
-            { value: "4", label: "3-2 بار" },
-            { value: "5", label: "4 بار و بیشتر" },
+            { value: '1', label: 'اصلا' },
+            { value: '2', label: 'کمتر از هفته‌ای یکبار' },
+            { value: '3', label: 'یکبار' },
+            { value: '4', label: '3-2 بار' },
+            { value: '5', label: '4 بار و بیشتر' },
           ]
         )}
 
         {renderSelectField(
-          "test22",
-          "در ماه گذشته، چند بار برای خوابيدن از قرص خواب آور يا آرام بخش استفاده کرده ايد؟ ",
+          'test22',
+          'در ماه گذشته، چند بار برای خوابيدن از قرص خواب آور يا آرام بخش استفاده کرده ايد؟ ',
           [
-            { value: "1", label: " اصلا تجربه نکردم" },
-            { value: "2", label: " کمتر از هفته ای یکبار" },
-            { value: "3", label: "یک یا دوبار در هفته" },
-            { value: "4", label: "سه بار بیشتر در هفته" },
+            { value: '1', label: ' اصلا تجربه نکردم' },
+            { value: '2', label: ' کمتر از هفته ای یکبار' },
+            { value: '3', label: 'یک یا دوبار در هفته' },
+            { value: '4', label: 'سه بار بیشتر در هفته' },
           ]
         )}
 
         {renderSelectField(
-          "test24",
-          "در ماه گذشته، چند بار نيمه شب برای دستشويی رفتن بيدار شديد؟",
+          'test24',
+          'در ماه گذشته، چند بار نيمه شب برای دستشويی رفتن بيدار شديد؟',
           [
-            { value: "1", label: "اصلا تجربه نکردم" },
-            { value: "2", label: "کمتر از هفته‌ای یکبار" },
-            { value: "3", label: "یک یا دو بار در هفته" },
-            { value: "4", label: "سه بار یا بیشتر در هفته" },
+            { value: '1', label: 'اصلا تجربه نکردم' },
+            { value: '2', label: 'کمتر از هفته‌ای یکبار' },
+            { value: '3', label: 'یک یا دو بار در هفته' },
+            { value: '4', label: 'سه بار یا بیشتر در هفته' },
           ]
         )}
 
         {renderSelectField(
-          "test203",
-          "هر چندوقت یکبار از همبرگر، سوسیس، کالباس و پیتزا استفاده میکنید؟",
+          'test203',
+          'هر چندوقت یکبار از همبرگر، سوسیس، کالباس و پیتزا استفاده میکنید؟',
           [
-            { value: "1", label: "روزی یکبار" },
-            { value: "2", label: "هفته‌ای 3-1 بار" },
-            { value: "3", label: "ماهی 3-1 بار" },
-            { value: "4", label: "سالی 10-5 بار" },
-            { value: "5", label: "هرگز" },
+            { value: '1', label: 'روزی یکبار' },
+            { value: '2', label: 'هفته‌ای 3-1 بار' },
+            { value: '3', label: 'ماهی 3-1 بار' },
+            { value: '4', label: 'سالی 10-5 بار' },
+            { value: '5', label: 'هرگز' },
           ]
         )}
 
         {renderSelectField(
-          "test204",
-          "هر چندوقت یکبار از سیب زمینی سرخ کرده، سمبوسه، فلافل و ناگت استفاده میکنید؟",
+          'test204',
+          'هر چندوقت یکبار از سیب زمینی سرخ کرده، سمبوسه، فلافل و ناگت استفاده میکنید؟',
           [
-            { value: "1", label: "روزی یکبار" },
-            { value: "2", label: "هفته‌ای 3-1 بار" },
-            { value: "3", label: "ماهی 3-1 بار" },
-            { value: "4", label: "سالی 10-5 بار" },
-            { value: "5", label: "هرگز" },
+            { value: '1', label: 'روزی یکبار' },
+            { value: '2', label: 'هفته‌ای 3-1 بار' },
+            { value: '3', label: 'ماهی 3-1 بار' },
+            { value: '4', label: 'سالی 10-5 بار' },
+            { value: '5', label: 'هرگز' },
           ]
         )}
 
         {renderSelectField(
-          "test215",
-          "به طورمتوسط هر روزچندحبه قند دراندازه متوسط مصرف ميکنيد؟",
+          'test215',
+          'به طورمتوسط هر روزچندحبه قند دراندازه متوسط مصرف ميکنيد؟',
           [
-            { value: "1", label: "اصلا" },
-            { value: "2", label: "1-2 بار" },
-            { value: "3", label: "3-4 بار" },
-            { value: "4", label: "5-8 بار" },
-            { value: "5", label: "9 بار و بیشتر" },
+            { value: '1', label: 'اصلا' },
+            { value: '2', label: '1-2 بار' },
+            { value: '3', label: '3-4 بار' },
+            { value: '4', label: '5-8 بار' },
+            { value: '5', label: '9 بار و بیشتر' },
           ]
         )}
 
         {renderSelectField(
-          "test219",
-          "در هفته بطور متوسط چند بار کيک، کلوچه و بيسکويت مصرف می کنيد؟",
+          'test219',
+          'در هفته بطور متوسط چند بار کيک، کلوچه و بيسکويت مصرف می کنيد؟',
           [
-            { value: "1", label: "اصلا" },
-            { value: "2", label: "کمتر از هفته‌ای یکبار" },
-            { value: "3", label: "1-2 بار" },
-            { value: "4", label: "3-4 بار" },
-            { value: "5", label: "5 بار و بیشتر" },
+            { value: '1', label: 'اصلا' },
+            { value: '2', label: 'کمتر از هفته‌ای یکبار' },
+            { value: '3', label: '1-2 بار' },
+            { value: '4', label: '3-4 بار' },
+            { value: '5', label: '5 بار و بیشتر' },
           ]
         )}
 
-        {renderSelectField("test253", "آیا سیگار می‌کشید؟", [
-          { value: "1", label: "بلی" },
-          { value: "2", label: "گاهی" },
-          { value: "3", label: "ترک کرده‌ام" },
+        {renderSelectField('test253', 'آیا سیگار می‌کشید؟', [
+          { value: '1', label: 'بلی' },
+          { value: '2', label: 'گاهی' },
+          { value: '3', label: 'ترک کرده‌ام' },
           {
-            value: "4",
-            label: "هیچگاه مصرف نکرده‌ام (زیر 100 عدد شامل این گزینه می‌شود)",
+            value: '4',
+            label: 'هیچگاه مصرف نکرده‌ام (زیر 100 عدد شامل این گزینه می‌شود)',
           },
         ])}
 
-        {/* {renderSelectField("snackConsumption", "میان وعده‌هایی مثل چیپس:", [
-          { value: "1", label: "اصلا" },
-          { value: "2", label: "کمتر از هفته‌ای یکبار" },
-          { value: "3", label: "1-2 بار" },
-          { value: "4", label: "3-4 بار" },
-          { value: "5", label: "5 بار و بیشتر" },
-        ])} */}
-
-        {renderSelectField("test262", "آیا سابقه درمان اعتیاد داشته اید؟", [
-          { value: "1", label: "بله" },
-          { value: "2", label: "خیر" },
+        {renderSelectField('test262', 'آیا سابقه درمان اعتیاد داشته اید؟', [
+          { value: '1', label: 'بله' },
+          { value: '2', label: 'خیر' },
         ])}
 
         <Button
@@ -297,11 +289,11 @@ const Step1: React.FC<Step1Props> = ({ nextStep, loading }) => {
           color="primary"
           fullWidth
         >
-          {loading ? <CircularProgress /> : "بعدی"}
+          {loading ? <CircularProgress /> : 'بعدی'}
         </Button>
       </form>
     </Container>
-  );
-};
+  )
+}
 
-export default Step1;
+export default Step1

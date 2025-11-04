@@ -1,16 +1,16 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from 'react'
+import { motion } from 'framer-motion'
 
 interface DialProps {
-  value: number; // 0-100
+  value: number // 0-100
 }
 
 const DialComponent: React.FC<DialProps> = ({ value }) => {
   // Ensure value is between 0-100
-  const normalizedValue = Math.min(100, Math.max(0, value));
-  
+  const normalizedValue = Math.min(100, Math.max(0, value))
+
   // Calculate needle rotation (-90 to 90 degrees)
-  const needleRotation = -90 + (normalizedValue * 180) / 100;
+  const needleRotation = -90 + (normalizedValue * 180) / 100
 
   return (
     <div className="w-[500px] relative">
@@ -43,13 +43,13 @@ const DialComponent: React.FC<DialProps> = ({ value }) => {
 
         {/* Tick marks */}
         {Array.from({ length: 21 }).map((_, i) => {
-          const angle = -180 + (i * 180) / 20;
-          const radian = (angle * Math.PI) / 180;
-          const x1 = 250 + 180 * Math.cos(radian);
-          const y1 = 250 + 180 * Math.sin(radian);
-          const x2 = 250 + 160 * Math.cos(radian);
-          const y2 = 250 + 160 * Math.sin(radian);
-          
+          const angle = -180 + (i * 180) / 20
+          const radian = (angle * Math.PI) / 180
+          const x1 = 250 + 180 * Math.cos(radian)
+          const y1 = 250 + 180 * Math.sin(radian)
+          const x2 = 250 + 160 * Math.cos(radian)
+          const y2 = 250 + 160 * Math.sin(radian)
+
           return (
             <line
               key={i}
@@ -60,49 +60,25 @@ const DialComponent: React.FC<DialProps> = ({ value }) => {
               stroke="black"
               strokeWidth="2"
             />
-          );
+          )
         })}
 
-        {/* Curved Labels */}
-        {/* <text className="text-lg font-bold" fill="black">
-          <textPath href="#lowPath" startOffset="20%" textAnchor="middle">
-            LOW
-          </textPath>
-        </text>
-        <text className="text-lg font-bold" fill="black">
-          <textPath href="#moderatePath" startOffset="50%" textAnchor="middle">
-            MODERATE
-          </textPath>
-        </text>
-        <text className="text-lg font-bold" fill="black">
-          <textPath href="#highPath" startOffset="80%" textAnchor="middle">
-            HIGH
-          </textPath>
-        </text> */}
-
-        {/* Center text "DIABETES RISK" on curved path */}
         <path
           id="textPath"
           d="M100 280 A180 180 0 0 1 400 280"
           fill="none"
           stroke="none"
         />
-        {/* <text className="text-lg font-bold">
-          <textPath href="#textPath" startOffset="50%" textAnchor="middle">
-            DIABETES RISK
-          </textPath>
-        </text> */}
 
-        {/* Needle with shadow */}
         <motion.g
           initial={{ rotate: -90 }}
           animate={{ rotate: needleRotation }}
-          transition={{ 
-            type: "spring",
+          transition={{
+            type: 'spring',
             stiffness: 50,
-            damping: 15
+            damping: 15,
           }}
-          style={{ originX: "250px", originY: "250px" }}
+          style={{ originX: '250px', originY: '250px' }}
         >
           {/* Needle shadow */}
           <line
@@ -124,34 +100,13 @@ const DialComponent: React.FC<DialProps> = ({ value }) => {
             strokeWidth="4"
           />
           {/* Center circle shadow */}
-          <circle
-            cx="252"
-            cy="252"
-            r="15"
-            fill="rgba(0,0,0,0.2)"
-          />
+          <circle cx="252" cy="252" r="15" fill="rgba(0,0,0,0.2)" />
           {/* Center circle */}
-          <circle
-            cx="250"
-            cy="250"
-            r="15"
-            fill="#dc2626"
-          />
+          <circle cx="250" cy="250" r="15" fill="#dc2626" />
         </motion.g>
-
-        {/* Value display */}
-        {/* <text 
-          x="250" 
-          y="200" 
-          textAnchor="middle" 
-          className="text-2xl font-bold"
-          fill="black"
-        >
-          {normalizedValue}%
-        </text> */}
       </svg>
     </div>
-  );
-};
+  )
+}
 
-export default DialComponent;
+export default DialComponent

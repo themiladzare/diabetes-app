@@ -1,15 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import {
-  Stepper,
-  Step,
-  StepLabel,
-  Box,
-  Typography,
-  Container,
-  CssBaseline,
-} from '@mui/material'
+import { Box, Typography, Container, CssBaseline } from '@mui/material'
 import { CacheProvider } from '@emotion/react'
 import createCache from '@emotion/cache'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
@@ -19,8 +11,8 @@ import axios from 'axios'
 import { motion } from 'framer-motion'
 import { toPersianDigits } from './numberUtils'
 import DialComponent from './DialComponent'
-import cover from '../asset/qa.jpg'
-
+// import cover from '../asset/qa.jpg'
+import cover from '../asset/bg_sepid_04.png'
 // Importing Step Components
 import Step0 from './Step0'
 import Step1 from './Step1'
@@ -42,6 +34,133 @@ const theme = createTheme({
 })
 
 const steps = ['ثبت نام', 'دمو گرافیک', 'پارا کلینیکی', 'کلینیکی', 'ژنتیک']
+
+// Custom Stepper Component matching the image design
+interface CustomStepperProps {
+  activeStep: number
+  steps: string[]
+}
+
+const CustomStepper: React.FC<CustomStepperProps> = ({ activeStep, steps }) => {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        py: 3,
+        px: { xs: 1, sm: 2 },
+        flexWrap: 'wrap',
+      }}
+    >
+      {steps.map((step, index) => {
+        const isCompleted = index < activeStep
+        const isActive = index === activeStep
+
+        return (
+          <React.Fragment key={step}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                position: 'relative',
+                flex: { xs: '1 1 auto', sm: '0 0 auto' },
+                minWidth: { xs: '70px', sm: '90px' },
+                maxWidth: { xs: '90px', sm: '110px' },
+              }}
+            >
+              {/* Step Circle */}
+              <Box
+                sx={{
+                  width: { xs: 40, sm: 48 },
+                  height: { xs: 40, sm: 48 },
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: isActive
+                    ? '#1976d2'
+                    : isCompleted
+                    ? '#e0e0e0'
+                    : '#f5f5f5',
+                  border: isActive
+                    ? '2px solid #1976d2'
+                    : isCompleted
+                    ? '2px solid #e0e0e0'
+                    : '2px solid #e0e0e0',
+                  color: isActive
+                    ? '#ffffff'
+                    : isCompleted
+                    ? '#666666'
+                    : '#999999',
+                  fontWeight: 'bold',
+                  fontSize: { xs: '14px', sm: '16px' },
+                  transition: 'all 0.3s ease',
+                  zIndex: 2,
+                }}
+              >
+                {isCompleted ? (
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
+                      fill="#666666"
+                    />
+                  </svg>
+                ) : (
+                  <span>{toPersianDigits(String(index + 1))}</span>
+                )}
+              </Box>
+
+              {/* Step Label */}
+              <Typography
+                sx={{
+                  mt: 1,
+                  fontSize: { xs: '10px', sm: '12px' },
+                  fontWeight: isActive ? 'bold' : 'normal',
+                  color: isActive
+                    ? '#1976d2'
+                    : isCompleted
+                    ? '#666666'
+                    : '#999999',
+                  textAlign: 'center',
+                  lineHeight: 1.3,
+                }}
+              >
+                {step}
+              </Typography>
+            </Box>
+
+            {/* Connector Line */}
+            {index < steps.length - 1 && (
+              <Box
+                sx={{
+                  flex: { xs: '0 0 8px', sm: '0 0 16px' },
+                  height: '2px',
+                  backgroundColor: '#e0e0e0',
+                  mx: { xs: 0.5, sm: 1 },
+                  display: {
+                    xs: index === steps.length - 2 ? 'none' : 'block',
+                    sm: 'block',
+                  },
+                  alignSelf: 'flex-start',
+                  mt: { xs: '20px', sm: '24px' },
+                }}
+              />
+            )}
+          </React.Fragment>
+        )
+      })}
+    </Box>
+  )
+}
 
 type FormData = {
   [key: string]: string | number
@@ -260,17 +379,7 @@ const StepperComponent: React.FC = () => {
                     سامانه پایش یزد دیابت
                   </p>
                 </div>
-                <Stepper
-                  activeStep={activeStep}
-                  alternativeLabel
-                  sx={{ width: '100%' }}
-                >
-                  {steps.map((label) => (
-                    <Step key={label}>
-                      <StepLabel>{label}</StepLabel>
-                    </Step>
-                  ))}
-                </Stepper>
+                <CustomStepper activeStep={activeStep} steps={steps} />
 
                 {result && typeof result !== 'boolean' && resultMessage && (
                   <ResultMessage
