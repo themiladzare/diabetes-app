@@ -11,14 +11,15 @@ import axios from 'axios'
 import { motion } from 'framer-motion'
 import { toPersianDigits } from './numberUtils'
 import DialComponent from './DialComponent'
+import Image from 'next/image'
 // import cover from '../asset/qa.jpg'
-import cover from '../asset/bg_sepid_04.png'
+import cover from '../asset/sepid-bg-00.jpg'
 // Importing Step Components
 import Step0 from './Step0'
 import Step1 from './Step1'
 import Step2 from './Step2'
 import Step3 from './Step3'
-import Step4 from './Step4'
+// import Step4 from './Step4' // Temporarily disabled
 // RTL cache configuration
 const cacheRtl = createCache({
   key: 'muirtl',
@@ -33,7 +34,7 @@ const theme = createTheme({
   },
 })
 
-const steps = ['ثبت نام', 'دمو گرافیک', 'پارا کلینیکی', 'کلینیکی', 'ژنتیک']
+const steps = ['ثبت نام', 'دمو گرافیک', 'پارا کلینیکی', 'کلینیکی'] // 'ژنتیک' temporarily disabled
 
 // Custom Stepper Component matching the image design
 interface CustomStepperProps {
@@ -339,7 +340,7 @@ const StepperComponent: React.FC = () => {
       <Step1 key="step1" nextStep={handleNext} loading={isLoading} />,
       <Step2 key="step2" nextStep={handleNext} loading={isLoading} />,
       <Step3 key="step3" nextStep={handleNext} loading={isLoading} />,
-      <Step4 key="step4" nextStep={handleNext} loading={isLoading} />,
+      // <Step4 key="step4" nextStep={handleNext} loading={isLoading} />, // Temporarily disabled
     ]
     return stepComponents[activeStep]
   }
@@ -351,88 +352,124 @@ const StepperComponent: React.FC = () => {
         <Box
           sx={{
             minHeight: '100vh',
-            backgroundImage: `url(${cover.src})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            width: '100%',
+            position: 'relative',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            overflow: 'auto',
           }}
         >
-          <div className="px-6 pt-14 pb-8 lg:px-8 ">
-            <Container maxWidth="xl">
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  backgroundColor: 'rgba(255, 255, 255,.9)', // Semi-transparent white background
-                  borderRadius: 2,
-                  boxShadow: 3,
-                  p: { xs: 2, sm: 3, md: 4 },
-                }}
-              >
-                <div className="flex flex-col items-center mb-6">
-                  <h1 className="text-balance text-4xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                    سپید
-                  </h1>
-                  <p className="mt-2 text-sm leading-8 text-gray-600">
-                    سامانه پایش یزد دیابت
-                  </p>
-                </div>
-                <CustomStepper activeStep={activeStep} steps={steps} />
+          {/* Background Image with Next.js Image Optimization */}
+          <Box
+            sx={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              zIndex: 0,
+              overflow: 'hidden',
+            }}
+          >
+            <Image
+              src={cover}
+              alt="Background"
+              fill
+              quality={90}
+              priority
+              style={{
+                objectFit: 'cover',
+                objectPosition: 'center',
+              }}
+              sizes="100vw"
+            />
+          </Box>
 
-                {result && typeof result !== 'boolean' && resultMessage && (
-                  <ResultMessage
-                    prediction={result.prediction}
-                    confidence_class_0={result.confidence_class_0}
-                    confidence_class_1={result.confidence_class_1}
-                  />
-                )}
+          {/* Content Layer */}
+          <Box
+            sx={{
+              position: 'relative',
+              zIndex: 1,
+              width: '100%',
+            }}
+          >
+            <div className="px-6 pt-14 pb-8 lg:px-8 ">
+              <Container maxWidth="md">
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    backgroundColor: 'rgba(255, 255, 255,.9)', // Semi-transparent white background
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    p: { xs: 2, sm: 3, md: 4 },
+                  }}
+                >
+                  <div className="flex flex-col items-center mb-6">
+                    <h1 className="text-balance text-4xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                      سپید
+                    </h1>
+                    <p className="mt-2 text-sm leading-8 text-gray-600">
+                      سامانه پایش یزد دیابت
+                    </p>
+                  </div>
+                  <CustomStepper activeStep={activeStep} steps={steps} />
 
-                <Box sx={{ mt: 2, width: '100%', textAlign: 'center' }}>
-                  {activeStep > steps.length - 1 ? (
-                    <div className="flex flex-col items-center">
-                      {result && typeof result !== 'boolean' && (
-                        <DialComponent
-                          value={result.confidence_class_0 * 100}
-                        />
-                      )}
-                      <Typography
-                        variant="h5"
-                        sx={{ fontWeight: 'bold', mb: 2, mt: 2 }}
-                        className="!my-8"
-                      >
-                        تبریک! شما تمامی مراحل را با موفقیت به پایان رساندید 🎉
-                      </Typography>
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        style={{
-                          padding: '12px 24px',
-                          backgroundColor: '#1976d2',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          fontSize: '16px',
-                        }}
-                        onClick={() => {
-                          setActiveStep(0)
-                          setResult(null)
-                          setResultMessage(null)
-                          setNationalId('')
-                        }}
-                      >
-                        شروع دوباره
-                      </motion.button>
-                    </div>
-                  ) : (
-                    renderStep()
+                  {result && typeof result !== 'boolean' && resultMessage && (
+                    <ResultMessage
+                      prediction={result.prediction}
+                      confidence_class_0={result.confidence_class_0}
+                      confidence_class_1={result.confidence_class_1}
+                    />
                   )}
+
+                  <Box sx={{ mt: 2, width: '100%', textAlign: 'center' }}>
+                    {activeStep > steps.length - 1 ? (
+                      <div className="flex flex-col items-center">
+                        {result && typeof result !== 'boolean' && (
+                          <DialComponent
+                            value={result.confidence_class_0 * 100}
+                          />
+                        )}
+                        <Typography
+                          variant="h5"
+                          sx={{ fontWeight: 'bold', mb: 2, mt: 2 }}
+                          className="!my-8"
+                        >
+                          تبریک! شما تمامی مراحل را با موفقیت به پایان رساندید
+                          🎉
+                        </Typography>
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          style={{
+                            padding: '12px 24px',
+                            backgroundColor: '#1976d2',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontSize: '16px',
+                          }}
+                          onClick={() => {
+                            setActiveStep(0)
+                            setResult(null)
+                            setResultMessage(null)
+                            setNationalId('')
+                          }}
+                        >
+                          شروع دوباره
+                        </motion.button>
+                      </div>
+                    ) : (
+                      renderStep()
+                    )}
+                  </Box>
                 </Box>
-              </Box>
-            </Container>
-          </div>
+              </Container>
+            </div>
+          </Box>
         </Box>
         <Toaster />
       </ThemeProvider>
