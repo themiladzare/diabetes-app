@@ -201,22 +201,17 @@ const INITIAL_FORM_DATA: FormData = {
 }
 
 interface ResultMessageProps {
-  prediction: number
-  confidence_class_0: number
-  confidence_class_1: number
+  risk_percentage: number
 }
 
 interface Result {
   prediction: number
-  confidence_class_0: number
-  confidence_class_1: number
+  risk_percentage: number
 }
 
-const ResultMessage = ({
-  prediction,
-  confidence_class_0,
-  confidence_class_1,
-}: ResultMessageProps) => {
+const ResultMessage = ({ risk_percentage }: ResultMessageProps) => {
+  const formattedRisk = toPersianDigits(Number(risk_percentage || 0).toFixed(2))
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
@@ -225,7 +220,7 @@ const ResultMessage = ({
     >
       <Box
         sx={{
-          backgroundColor: prediction == 1 ? '#fdecea' : '#e0f7fa',
+          backgroundColor: '#fdecea',
           padding: '16px',
           borderRadius: '8px',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
@@ -237,22 +232,15 @@ const ResultMessage = ({
           variant="h6"
           sx={{
             fontWeight: 'bold',
-            color: prediction == 1 ? '#d32f2f' : '#00796b',
+            color: '#d32f2f',
           }}
         >
           نتیجه فرایند
         </Typography>
         <Typography variant="body1" sx={{ mt: 2 }}>
           <span style={{ fontWeight: 'bold' }}>
-            {prediction == 1 ? ' دیابت دارید ،' : ' دیابت ندارید ،'}
+            ریسک ابتلای شما به دیابت {formattedRisk}% است
           </span>
-          {` میزان اطمینان به پاسخ `}
-          <span style={{ fontWeight: 'bold' }}>
-            {prediction == 2
-              ? `${toPersianDigits((confidence_class_1 * 100).toFixed(2))}%`
-              : `${toPersianDigits((confidence_class_0 * 100).toFixed(2))}%`}
-          </span>
-          {` است.`}
         </Typography>
       </Box>
     </motion.div>
@@ -291,14 +279,10 @@ const StepperComponent: React.FC = () => {
         // Only set result for prediction endpoints (not registration)
         if (activeStep !== 0) {
           setResult(response.data)
-
-          const message = !response.data?.prediction
-            ? `با توجه به پیش‌بینی، احتمال اینکه شخص دیابت داشته باشد ${
-                response.data?.confidence_class_1 * 100
-              }% است.`
-            : `با توجه به پیش‌بینی، احتمال اینکه شخص دیابت نداشته باشد ${
-                response.data?.confidence_class_0 * 100
-              }% است.`
+          const riskValue = Number(response.data?.risk_percentage || 0).toFixed(
+            2
+          )
+          const message = `ریسک ابتلای شما به دیابت ${riskValue}% است`
 
           setResultMessage(message)
         }
@@ -417,20 +401,14 @@ const StepperComponent: React.FC = () => {
                   <CustomStepper activeStep={activeStep} steps={steps} />
 
                   {result && typeof result !== 'boolean' && resultMessage && (
-                    <ResultMessage
-                      prediction={result.prediction}
-                      confidence_class_0={result.confidence_class_0}
-                      confidence_class_1={result.confidence_class_1}
-                    />
+                    <ResultMessage risk_percentage={result.risk_percentage} />
                   )}
 
                   <Box sx={{ mt: 2, width: '100%', textAlign: 'center' }}>
                     {activeStep > steps.length - 1 ? (
                       <div className="flex flex-col items-center">
                         {result && typeof result !== 'boolean' && (
-                          <DialComponent
-                            value={result.confidence_class_0 * 100}
-                          />
+                          <DialComponent value={result.risk_percentage} />
                         )}
                         <Typography
                           variant="h5"
