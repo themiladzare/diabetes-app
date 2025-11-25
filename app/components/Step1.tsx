@@ -18,7 +18,7 @@ import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 const schema = yup.object().shape({
-  weight: yup
+  Vazn: yup
     .number()
     .typeError('وزن باید یک عدد باشد')
     .required('وزن الزامی است')
@@ -26,7 +26,7 @@ const schema = yup.object().shape({
     .integer('وزن باید عدد صحیح باشد')
     .min(30, 'وزن نمی‌تواند کمتر از 30 کیلوگرم باشد')
     .max(300, 'وزن نمی‌تواند بیشتر از 300 کیلوگرم باشد'),
-  height: yup
+  Ghad: yup
     .number()
     .typeError('قد باید یک عدد باشد')
     .required('قد الزامی است')
@@ -120,13 +120,13 @@ const Step1: React.FC<Step1Props> = ({ nextStep, loading }) => {
         ])}
 
         <Box mb={3}>
-          <FormControl component="fieldset" error={!!errors.height} fullWidth>
+          <FormControl component="fieldset" error={!!errors.Ghad} fullWidth>
             <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
               قد شما چقدر است؟
             </FormLabel>
             <FormGroup>
               <Controller
-                name="height"
+                name="Ghad"
                 control={control}
                 defaultValue={undefined}
                 render={({ field }) => (
@@ -134,18 +134,18 @@ const Step1: React.FC<Step1Props> = ({ nextStep, loading }) => {
                 )}
               />
             </FormGroup>
-            <FormHelperText>{errors.height?.message}</FormHelperText>
+            <FormHelperText>{errors.Ghad?.message}</FormHelperText>
           </FormControl>
         </Box>
 
         <Box mb={3}>
-          <FormControl component="fieldset" error={!!errors.weight} fullWidth>
+          <FormControl component="fieldset" error={!!errors.Vazn} fullWidth>
             <FormLabel component="legend" sx={{ mb: 1 }} className="text-right">
               وزن شما چقدر است؟
             </FormLabel>
             <FormGroup>
               <Controller
-                name="weight"
+                name="Vazn"
                 control={control}
                 defaultValue={undefined}
                 render={({ field }) => (
@@ -153,7 +153,7 @@ const Step1: React.FC<Step1Props> = ({ nextStep, loading }) => {
                 )}
               />
             </FormGroup>
-            <FormHelperText>{errors.weight?.message}</FormHelperText>
+            <FormHelperText>{errors.Vazn?.message}</FormHelperText>
           </FormControl>
         </Box>
 

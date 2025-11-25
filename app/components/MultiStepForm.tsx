@@ -164,40 +164,40 @@ const CustomStepper: React.FC<CustomStepperProps> = ({ activeStep, steps }) => {
 }
 
 type FormData = {
-  [key: string]: string | number
+  [key: string]: string | number | null
 }
 
 const INITIAL_FORM_DATA: FormData = {
-  test1: '',
-  test2: '',
-  Ghad: '',
-  Vazn: '',
-  test12: '',
-  test14: '',
-  test198: '',
-  test199: '',
-  test22: '',
-  test24: '',
-  test203: '',
-  test204: '',
-  test215: '',
-  test219: '',
-  test253: '',
-  test262: '',
-  FSG: '',
-  Chol: '',
-  HDL: '',
-  TG: '',
-  LDL: '',
-  test62: '',
-  test71: '',
-  test72: '',
-  test82: '',
-  test88: '',
-  test89: '',
-  test92: '',
-  test102: '',
-  test106: '',
+  test1: null,
+  test2: null,
+  Ghad: null,
+  Vazn: null,
+  test12: null,
+  test14: null,
+  test198: null,
+  test199: null,
+  test22: null,
+  test24: null,
+  test203: null,
+  test204: null,
+  test215: null,
+  test219: null,
+  test253: null,
+  test262: null,
+  FSG: null,
+  Chol: null,
+  HDL: null,
+  TG: null,
+  LDL: null,
+  test62: null,
+  test71: null,
+  test72: null,
+  test82: null,
+  test88: null,
+  test89: null,
+  test92: null,
+  test102: null,
+  test106: null,
 }
 
 interface ResultMessageProps {
@@ -272,7 +272,7 @@ const StepperComponent: React.FC = () => {
       toast.loading('در حال ارسال داده‌ها...')
       const response = await axios.post(endpoint, requestData)
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         toast.dismiss()
         toast.success('داده‌ها با موفقیت ارسال شدند!')
 
@@ -304,13 +304,37 @@ const StepperComponent: React.FC = () => {
     }
   }
 
+  // Helper function to convert empty strings to null
+  const normalizeFormData = (data: FormData): FormData => {
+    const normalized: FormData = {}
+    for (const key in data) {
+      const value = data[key]
+      // Convert empty strings, undefined, or whitespace-only strings to null
+      if (
+        value === '' ||
+        value === undefined ||
+        (typeof value === 'string' && value.trim() === '')
+      ) {
+        normalized[key] = null
+      } else {
+        normalized[key] = value
+      }
+    }
+    return normalized
+  }
+
   const handleNext = async (data: FormData) => {
-    const updatedFormData = { ...formData, ...data }
+    // Normalize the incoming data (convert empty strings to null)
+    const normalizedData = normalizeFormData(data)
+    const updatedFormData = normalizeFormData({
+      ...formData,
+      ...normalizedData,
+    })
     setFormData(updatedFormData)
 
     // Store national_id from registration step
-    if (activeStep === 0 && data.national_id) {
-      setNationalId(data.national_id as string)
+    if (activeStep === 0 && normalizedData.national_id) {
+      setNationalId(normalizedData.national_id as string)
     }
 
     setIsLoading(true)
